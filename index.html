@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <link rel="shortcut icon" href="favicon.png">
-<link rel="icon" type="image/png" sizes="any" href="favicon.png">
-<link rel="apple-touch-icon" href="favicon.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Câlins & Sourires — Baby-sitter professionnelle</title>
@@ -266,7 +263,14 @@
   .admin-close { background: rgba(255,255,255,0.1); border: none; color: var(--white); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; transition: background 0.2s; }
   .admin-close:hover { background: rgba(255,255,255,0.2); }
   .admin-body { padding: 2rem 2.5rem; }
-  .admin-tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 2px solid rgba(45,31,31,0.08); }
+  .cal-cell.blocked { background: #F5E6C8; border-color: #D4A853; cursor: not-allowed; opacity: 0.7; }
+  .cal-cell.blocked .cal-day-num { color: #D4A853; }
+  .blocked-item { display:flex; align-items:center; justify-content:space-between; background:var(--white); border-radius:10px; padding:8px 12px; margin-bottom:6px; font-size:0.85rem; color:var(--dark-mid); border:1px solid rgba(45,31,31,0.07); }
+  .blocked-item .reason-badge { font-size:0.72rem; background:var(--gold-light); color:var(--gold); padding:2px 8px; border-radius:50px; font-weight:600; }
+  .blocked-item .slot-badge { font-size:0.72rem; background:var(--rose-light); color:var(--rose-deep); padding:2px 8px; border-radius:50px; }
+  .btn-unblock { background:none; border:1px solid var(--rose-deep); color:var(--rose-deep); border-radius:6px; padding:3px 10px; font-size:0.75rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+  .btn-unblock:hover { background:var(--rose-deep); color:white; }
+  .admin-tabs { display:flex; gap:0.5rem; margin-bottom:2rem; border-bottom:2px solid rgba(45,31,31,0.08); overflow-x:auto; flex-wrap:nowrap; }
   .admin-tab { padding: 10px 20px; border: none; background: none; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; color: var(--text-mid); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
   .admin-tab.active { color: var(--rose-deep); border-bottom-color: var(--rose-deep); }
   .admin-panel { display: none; }
@@ -342,7 +346,6 @@
 </head>
 <body>
 
-
 <div class="toast" id="toast"></div>
 
 <!-- NAV -->
@@ -377,7 +380,7 @@
       </div>
       <div class="hero-stats">
         <div class="stat"><div class="stat-num">5★</div><div class="stat-label">Note moyenne</div></div>
-        <div class="stat"><div class="stat-num">3 ans</div><div class="stat-label">D'expérience</div></div>
+        <div class="stat"><div class="stat-num">6 ans</div><div class="stat-label">D'expérience</div></div>
       </div>
     </div>
     <div class="hero-visual">
@@ -392,8 +395,6 @@
         <div class="hero-card-role">Baby-sitter certifiée</div>
         <div class="hero-badges">
           <span class="badge">🏅 PSC1</span>
-          <span class="badge">📚 Bac Pro ASSP</span>
-          <span class="badge badge-sage">✓ Assurée</span>
           <span class="badge badge-gold">⭐ Auto-entreprise</span>
         </div>
         <div class="dispo-chip">
@@ -609,10 +610,8 @@
             <div class="about-subtitle">Auto-entrepreneuse · Baby-sitter</div>
             <div class="about-certifs">
               <div class="certif"><span class="certif-icon">🏅</span> Diplôme PSC1 (Premiers Secours)</div>
-              <div class="certif"><span class="certif-icon">📜</span> Bac Pro Accompagnement Soins</div>
-              <div class="certif"><span class="certif-icon">🛡️</span> Assurance Responsabilité Civile Pro</div>
+              <div class="certif"><span class="certif-icon">📜</span> Experience baby-sitting depuis 6 ans</div>
               <div class="certif"><span class="certif-icon">✅</span> Casier judiciaire vierge</div>
-              <div class="certif"><span class="certif-icon">🌱</span> Formation pédagogie Montessori</div>
             </div>
           </div>
         </div>
@@ -690,15 +689,15 @@
           <div class="contact-icon-wrap c-rose">📞</div>
           <div>
             <div class="contact-label">Téléphone</div>
-            <div class="contact-value">06 XX XX XX XX</div>
-            <div class="contact-sub">Lun–Sam · 8h–20h</div>
+            <div class="contact-value" id="contact-tel">06 XX XX XX XX</div>
+            <div class="contact-sub" id="contact-tel-hours">Lun–Sam · 8h–20h</div>
           </div>
         </div>
         <div class="contact-block">
           <div class="contact-icon-wrap c-sage">📧</div>
           <div>
             <div class="contact-label">Email</div>
-            <div class="contact-value">contact@calins-sourires.fr</div>
+            <div class="contact-value" id="contact-email">contact@calins-sourires.fr</div>
             <div class="contact-sub">Réponse sous 24h</div>
           </div>
         </div>
@@ -706,16 +705,16 @@
           <div class="contact-icon-wrap c-gold">📍</div>
           <div>
             <div class="contact-label">Zone d'intervention</div>
-            <div class="contact-value">Amiens et alentours</div>
-            <div class="contact-sub">Rayon de 20 km autour d'Amiens</div>
+            <div class="contact-value" id="contact-zone">Amiens et alentours</div>
+            <div class="contact-sub" id="contact-zone-sub">Rayon de 20 km autour d'Amiens</div>
           </div>
         </div>
         <div class="contact-block">
           <div class="contact-icon-wrap c-rose">⏰</div>
           <div>
             <div class="contact-label">Disponibilités</div>
-            <div class="contact-value">7j/7 · Flexibles</div>
-            <div class="contact-sub">Jours fériés & nuits possibles</div>
+            <div class="contact-value" id="contact-dispo">7j/7 · Flexibles</div>
+            <div class="contact-sub" id="contact-dispo-sub">Jours fériés & nuits possibles</div>
           </div>
         </div>
       </div>
@@ -812,6 +811,9 @@
           <button class="admin-tab active" id="tab-reservations" onclick="switchTab('reservations', this)">📅 Réservations</button>
           <button class="admin-tab" id="tab-messages" onclick="switchTab('messages', this)">💌 Messages</button>
           <button class="admin-tab" id="tab-tarifs" onclick="switchTab('tarifs', this)">💶 Tarifs</button>
+          <button class="admin-tab" id="tab-dispos" onclick="switchTab('dispos', this)">🗓️ Disponibilités</button>
+          <button class="admin-tab" id="tab-contacts" onclick="switchTab('contacts', this)">📞 Contacts</button>
+          <button class="admin-tab" id="tab-compte" onclick="switchTab('compte', this)">🔐 Compte</button>
           <button class="admin-tab" style="margin-left:auto; color:var(--rose-deep);" onclick="adminLogout()">Déconnexion</button>
         </div>
 
@@ -842,6 +844,146 @@
           </div>
           <div class="admin-tarifs-form" id="adminTarifsForm"></div>
         </div>
+
+        <!-- DISPONIBILITES -->
+        <div class="admin-panel" id="panel-dispos">
+          <p style="color:var(--text-mid); margin-bottom:1.5rem; font-size:0.9rem;">Gérez vos disponibilités : bloquez des jours ou des créneaux spécifiques. Les visiteurs ne pourront pas réserver les périodes bloquées.</p>
+
+          <!-- Chip disponibilité -->
+          <div style="background:var(--cream); border-radius:16px; padding:1.2rem 1.5rem; margin-bottom:1.5rem;">
+            <div style="font-weight:600; color:var(--dark); margin-bottom:0.75rem; font-size:0.92rem;">💬 Message de disponibilité (affiché sur le site)</div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input class="tarif-edit-input" id="dispo-chip-text" placeholder="Disponible cette semaine !" style="flex:1;">
+              <button class="btn-save-tarif" onclick="saveDispoChip()">Sauver</button>
+            </div>
+            <p style="font-size:0.78rem; color:var(--text-light); margin-top:6px;">C'est le texte affiché dans la carte verte "Disponible" sur la page d'accueil.</p>
+          </div>
+
+          <!-- Bloquer une journée entière -->
+          <div style="background:var(--cream); border-radius:16px; padding:1.2rem 1.5rem; margin-bottom:1.5rem;">
+            <div style="font-weight:600; color:var(--dark); margin-bottom:0.75rem; font-size:0.92rem;">🚫 Bloquer / débloquer une journée entière</div>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <input type="date" id="block-date" class="tarif-edit-input" style="flex:1; min-width:160px;">
+              <select id="block-reason" class="tarif-edit-input" style="flex:1; min-width:140px;">
+                <option value="Indisponible">Indisponible</option>
+                <option value="Congé">Congé</option>
+                <option value="Férié">Jour férié</option>
+                <option value="Personnel">Personnel</option>
+              </select>
+              <button class="btn-save-tarif" onclick="blockDay()" style="background:var(--rose-deep);">Bloquer</button>
+              <button class="btn-save-tarif" onclick="unblockDay()" style="background:var(--sage);">Débloquer</button>
+            </div>
+          </div>
+
+          <!-- Bloquer un créneau spécifique -->
+          <div style="background:var(--cream); border-radius:16px; padding:1.2rem 1.5rem; margin-bottom:1.5rem;">
+            <div style="font-weight:600; color:var(--dark); margin-bottom:0.75rem; font-size:0.92rem;">⏰ Bloquer un créneau spécifique</div>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <input type="date" id="block-slot-date" class="tarif-edit-input" style="flex:1; min-width:160px;">
+              <select id="block-slot-time" class="tarif-edit-input" style="flex:1; min-width:160px;">
+                <option>07:00–09:00</option>
+                <option>09:00–12:00</option>
+                <option>12:00–14:00</option>
+                <option>14:00–17:00</option>
+                <option>17:00–20:00</option>
+                <option>20:00–08:00</option>
+              </select>
+              <button class="btn-save-tarif" onclick="blockSlot()" style="background:var(--rose-deep);">Bloquer</button>
+              <button class="btn-save-tarif" onclick="unblockSlot()" style="background:var(--sage);">Débloquer</button>
+            </div>
+          </div>
+
+          <!-- Liste des jours bloqués -->
+          <div style="background:var(--cream); border-radius:16px; padding:1.2rem 1.5rem;">
+            <div style="font-weight:600; color:var(--dark); margin-bottom:0.75rem; font-size:0.92rem;">📋 Jours et créneaux bloqués</div>
+            <div id="blockedList"><p style="color:var(--text-light); font-size:0.88rem;">Aucun blocage manuel pour l'instant.</p></div>
+          </div>
+        </div>
+
+        <!-- CONTACTS -->
+        <div class="admin-panel" id="panel-contacts">
+          <p style="color:var(--text-mid); margin-bottom:1.5rem; font-size:0.9rem;">Ces informations s'affichent sur le site dans la section Contact. Modifiez-les et cliquez sur Sauvegarder.</p>
+          <div class="admin-tarifs-form">
+            <div class="admin-tarif-item">
+              <div class="admin-tarif-name">📞 Téléphone</div>
+              <div class="tarif-edit-wrap">
+                <input class="tarif-edit-input" id="c-tel" placeholder="06 XX XX XX XX" style="flex:1;">
+                <button class="btn-save-tarif" onclick="saveContact('tel')">Sauver</button>
+              </div>
+              <div style="font-size:0.78rem; color:var(--text-light); margin-top:6px;">Horaires affichés (ex: Lun–Sam · 8h–20h)</div>
+              <div class="tarif-edit-wrap" style="margin-top:4px;">
+                <input class="tarif-edit-input" id="c-tel-hours" placeholder="Lun–Sam · 8h–20h" style="flex:1;">
+              </div>
+            </div>
+            <div class="admin-tarif-item">
+              <div class="admin-tarif-name">📧 Email public</div>
+              <div class="tarif-edit-wrap">
+                <input class="tarif-edit-input" id="c-email-public" placeholder="contact@calins-sourires.fr" style="flex:1;">
+                <button class="btn-save-tarif" onclick="saveContact('email-public')">Sauver</button>
+              </div>
+            </div>
+            <div class="admin-tarif-item">
+              <div class="admin-tarif-name">📍 Zone d'intervention</div>
+              <div class="tarif-edit-wrap">
+                <input class="tarif-edit-input" id="c-zone" placeholder="Amiens et alentours" style="flex:1;">
+                <button class="btn-save-tarif" onclick="saveContact('zone')">Sauver</button>
+              </div>
+              <div style="font-size:0.78rem; color:var(--text-light); margin-top:6px;">Sous-titre (ex: Rayon de 20 km autour d'Amiens)</div>
+              <div class="tarif-edit-wrap" style="margin-top:4px;">
+                <input class="tarif-edit-input" id="c-zone-sub" placeholder="Rayon de 20 km autour d'Amiens" style="flex:1;">
+              </div>
+            </div>
+            <div class="admin-tarif-item">
+              <div class="admin-tarif-name">⏰ Disponibilités</div>
+              <div class="tarif-edit-wrap">
+                <input class="tarif-edit-input" id="c-dispo" placeholder="7j/7 · Flexibles" style="flex:1;">
+                <button class="btn-save-tarif" onclick="saveContact('dispo')">Sauver</button>
+              </div>
+              <div style="font-size:0.78rem; color:var(--text-light); margin-top:6px;">Sous-titre</div>
+              <div class="tarif-edit-wrap" style="margin-top:4px;">
+                <input class="tarif-edit-input" id="c-dispo-sub" placeholder="Jours fériés & nuits possibles" style="flex:1;">
+              </div>
+            </div>
+          </div>
+          <button class="btn-save-tarif" onclick="saveAllContacts()" style="margin-top:1.5rem; padding:12px 24px; font-size:0.9rem; border-radius:12px;">💾 Tout sauvegarder</button>
+        </div>
+
+        <!-- COMPTE -->
+        <div class="admin-panel" id="panel-compte">
+          <p style="color:var(--text-mid); margin-bottom:1.5rem; font-size:0.9rem;">Pour modifier votre email ou mot de passe, vous devez d'abord confirmer votre mot de passe actuel.</p>
+
+          <div style="background:var(--cream); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem;">
+            <div style="font-weight:600; color:var(--dark); margin-bottom:1rem; font-size:0.95rem;">✉️ Changer l'identifiant (email)</div>
+            <div class="form-group">
+              <label class="form-label">Mot de passe actuel</label>
+              <input class="form-input" id="compte-pwd-for-email" type="password" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nouvel email</label>
+              <input class="form-input" id="compte-new-email" type="email" placeholder="nouveau@email.com">
+            </div>
+            <button class="btn-save-tarif" onclick="changeEmail()" style="padding:10px 20px; font-size:0.88rem; border-radius:10px;">Mettre à jour l'email</button>
+            <div id="email-feedback" style="margin-top:10px; font-size:0.85rem; display:none;"></div>
+          </div>
+
+          <div style="background:var(--cream); border-radius:16px; padding:1.5rem;">
+            <div style="font-weight:600; color:var(--dark); margin-bottom:1rem; font-size:0.95rem;">🔑 Changer le mot de passe</div>
+            <div class="form-group">
+              <label class="form-label">Mot de passe actuel</label>
+              <input class="form-input" id="compte-pwd-current" type="password" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nouveau mot de passe</label>
+              <input class="form-input" id="compte-pwd-new" type="password" placeholder="8 caractères minimum">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirmer le nouveau mot de passe</label>
+              <input class="form-input" id="compte-pwd-confirm" type="password" placeholder="Répétez le nouveau mot de passe">
+            </div>
+            <button class="btn-save-tarif" onclick="changePassword()" style="padding:10px 20px; font-size:0.88rem; border-radius:10px;">Mettre à jour le mot de passe</button>
+            <div id="pwd-feedback" style="margin-top:10px; font-size:0.85rem; display:none;"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -855,7 +997,8 @@
     serverTimestamp, onSnapshot, query, orderBy
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import {
-    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+    updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   const firebaseConfig = {
@@ -883,8 +1026,12 @@
   window._snap = onSnapshot;
   window._q    = query;
   window._ord  = orderBy;
-  window._signIn  = signInWithEmailAndPassword;
-  window._signOut = signOut;
+  window._signIn      = signInWithEmailAndPassword;
+  window._signOut     = signOut;
+  window._updateEmail = updateEmail;
+  window._updatePwd   = updatePassword;
+  window._reauth      = reauthenticateWithCredential;
+  window._credential  = EmailAuthProvider;
   window._fbReady = true;
 
   // Watch auth state
@@ -955,7 +1102,6 @@
 
 <!-- ===================== APP ===================== -->
 <script>
-
 
 // ============================================================
 // NAV
@@ -1258,6 +1404,27 @@ window.switchTab = switchTab;
 // ---- Charger les données admin ----
 async function loadAdminData() {
   if (!window._fbReady) return;
+  // Pre-fill contacts inputs
+  try {
+    const snap = await window._docs(window._col(window._db, 'contacts'));
+    snap.forEach(d => {
+      const c = d.data();
+      const inp = document.getElementById('c-' + c.key);
+      if (inp && c.value) inp.value = c.value;
+    });
+  } catch(e) {}
+  // Pre-fill dispo chip input
+  try {
+    const snap = await window._docs(window._col(window._db, 'settings'));
+    snap.forEach(d => {
+      if (d.data().key === 'dispo-chip') {
+        const inp = document.getElementById('dispo-chip-text');
+        if (inp) inp.value = d.data().value;
+      }
+    });
+  } catch(e) {}
+  // Reload blocked dates for admin list
+  renderBlockedList();
   try {
     // Réservations
     const rSnap = await window._docs(window._col(window._db, 'reservations'));
@@ -1423,6 +1590,349 @@ async function saveTarif(id) {
 }
 window.saveTarif = saveTarif;
 
+// ---- Contacts ----
+const contactsConfig = [
+  { key: 'tel',       siteId: 'contact-tel',       subKey: 'tel-hours', siteSub: 'contact-tel-hours' },
+  { key: 'email-public', siteId: 'contact-email',   subKey: null,        siteSub: null },
+  { key: 'zone',      siteId: 'contact-zone',       subKey: 'zone-sub',  siteSub: 'contact-zone-sub' },
+  { key: 'dispo',     siteId: 'contact-dispo',      subKey: 'dispo-sub', siteSub: 'contact-dispo-sub' },
+];
+
+async function loadContactsFromFirebase() {
+  if (!window._fbReady) return;
+  try {
+    const snap = await window._docs(window._col(window._db, 'contacts'));
+    snap.forEach(d => {
+      const c = d.data();
+      const inp = document.getElementById('c-' + c.key);
+      if (inp && c.value) inp.value = c.value;
+      // Update site display
+      updateContactOnSite(c.key, c.value);
+    });
+  } catch(e) { console.warn('Contacts non chargés', e); }
+}
+
+function updateContactOnSite(key, value) {
+  const map = {
+    'tel':          'contact-tel',
+    'tel-hours':    'contact-tel-hours',
+    'email-public': 'contact-email',
+    'zone':         'contact-zone',
+    'zone-sub':     'contact-zone-sub',
+    'dispo':        'contact-dispo',
+    'dispo-sub':    'contact-dispo-sub',
+  };
+  const el = document.getElementById(map[key]);
+  if (el) el.textContent = value;
+}
+
+async function saveContact(key) {
+  const inp = document.getElementById('c-' + key);
+  const val = inp ? inp.value.trim() : '';
+  if (!val) { showToast('Champ vide', 'error'); return; }
+
+  // Sauvegarder aussi le sous-titre associé si présent
+  const subKeys = { tel: 'tel-hours', zone: 'zone-sub', dispo: 'dispo-sub' };
+  const subKey = subKeys[key];
+
+  try {
+    await saveContactKey(key, val);
+    if (subKey) {
+      const subInp = document.getElementById('c-' + subKey);
+      if (subInp && subInp.value.trim()) await saveContactKey(subKey, subInp.value.trim());
+    }
+    updateContactOnSite(key, val);
+    showToast('Contact mis à jour ✅');
+  } catch(e) { showToast('Erreur sauvegarde', 'error'); }
+}
+window.saveContact = saveContact;
+
+async function saveContactKey(key, value) {
+  const snap = await window._docs(window._col(window._db, 'contacts'));
+  let existingId = null;
+  snap.forEach(d => { if (d.data().key === key) existingId = d.id; });
+  if (existingId) {
+    await window._upd(window._doc(window._db, 'contacts', existingId), { value });
+  } else {
+    await window._add(window._col(window._db, 'contacts'), { key, value });
+  }
+  updateContactOnSite(key, value);
+}
+
+async function saveAllContacts() {
+  const fields = [
+    { id: 'c-tel',          key: 'tel' },
+    { id: 'c-tel-hours',    key: 'tel-hours' },
+    { id: 'c-email-public', key: 'email-public' },
+    { id: 'c-zone',         key: 'zone' },
+    { id: 'c-zone-sub',     key: 'zone-sub' },
+    { id: 'c-dispo',        key: 'dispo' },
+    { id: 'c-dispo-sub',    key: 'dispo-sub' },
+  ];
+  try {
+    for (const f of fields) {
+      const inp = document.getElementById(f.id);
+      if (inp && inp.value.trim()) await saveContactKey(f.key, inp.value.trim());
+    }
+    showToast('Tous les contacts sauvegardés ✅');
+  } catch(e) { showToast('Erreur sauvegarde', 'error'); }
+}
+window.saveAllContacts = saveAllContacts;
+
+// ---- Compte admin ----
+function feedback(id, msg, ok) {
+  const el = document.getElementById(id);
+  el.style.display = 'block';
+  el.style.color = ok ? '#4A7C4A' : 'var(--rose-deep)';
+  el.textContent = msg;
+  setTimeout(() => { el.style.display = 'none'; }, 5000);
+}
+
+async function changeEmail() {
+  const pwd      = document.getElementById('compte-pwd-for-email').value;
+  const newEmail = document.getElementById('compte-new-email').value.trim();
+  if (!pwd || !newEmail) { feedback('email-feedback', 'Remplissez tous les champs.', false); return; }
+
+  const user = window._currentUser;
+  if (!user) { feedback('email-feedback', 'Non connecté.', false); return; }
+
+  try {
+    const cred = window._credential.credential(user.email, pwd);
+    await window._reauth(user, cred);
+    await window._updateEmail(user, newEmail);
+    feedback('email-feedback', 'Email mis à jour ! Reconnectez-vous avec le nouvel email.', true);
+    document.getElementById('compte-pwd-for-email').value = '';
+    document.getElementById('compte-new-email').value = '';
+  } catch(e) {
+    const msg = e.code === 'auth/wrong-password' ? 'Mot de passe actuel incorrect.' :
+                e.code === 'auth/invalid-email'  ? 'Nouvel email invalide.' :
+                e.code === 'auth/requires-recent-login' ? 'Session expirée, reconnectez-vous.' :
+                'Erreur : ' + e.message;
+    feedback('email-feedback', msg, false);
+  }
+}
+window.changeEmail = changeEmail;
+
+async function changePassword() {
+  const current  = document.getElementById('compte-pwd-current').value;
+  const newPwd   = document.getElementById('compte-pwd-new').value;
+  const confirm  = document.getElementById('compte-pwd-confirm').value;
+
+  if (!current || !newPwd || !confirm) { feedback('pwd-feedback', 'Remplissez tous les champs.', false); return; }
+  if (newPwd !== confirm)              { feedback('pwd-feedback', 'Les mots de passe ne correspondent pas.', false); return; }
+  if (newPwd.length < 8)              { feedback('pwd-feedback', 'Le mot de passe doit faire au moins 8 caractères.', false); return; }
+
+  const user = window._currentUser;
+  if (!user) { feedback('pwd-feedback', 'Non connecté.', false); return; }
+
+  try {
+    const cred = window._credential.credential(user.email, current);
+    await window._reauth(user, cred);
+    await window._updatePwd(user, newPwd);
+    feedback('pwd-feedback', 'Mot de passe mis à jour avec succès !', true);
+    document.getElementById('compte-pwd-current').value = '';
+    document.getElementById('compte-pwd-new').value     = '';
+    document.getElementById('compte-pwd-confirm').value = '';
+  } catch(e) {
+    const msg = e.code === 'auth/wrong-password' ? 'Mot de passe actuel incorrect.' :
+                e.code === 'auth/requires-recent-login' ? 'Session expirée, reconnectez-vous.' :
+                'Erreur : ' + e.message;
+    feedback('pwd-feedback', msg, false);
+  }
+}
+window.changePassword = changePassword;
+
+// ---- Disponibilités ----
+// blockedDates = { 'YYYY-MM-DD': { type:'day'|'slot', reason:'...', slot?:'...' }[] }
+let blockedDates = {};
+
+async function loadBlockedDates() {
+  if (!window._fbReady) return;
+  try {
+    const snap = await window._docs(window._col(window._db, 'blocages'));
+    blockedDates = {};
+    snap.forEach(d => {
+      const b = d.data();
+      if (!blockedDates[b.date]) blockedDates[b.date] = [];
+      blockedDates[b.date].push({ ...b, firestoreId: d.id });
+    });
+    renderCalendar();
+    renderBlockedList();
+  } catch(e) { console.warn('Blocages non chargés', e); }
+}
+
+async function blockDay() {
+  const date   = document.getElementById('block-date').value;
+  const reason = document.getElementById('block-reason').value;
+  if (!date) { showToast('Sélectionnez une date', 'error'); return; }
+
+  const SLOTS = ['07:00–09:00','09:00–12:00','12:00–14:00','14:00–17:00','17:00–20:00','20:00–08:00'];
+  try {
+    for (const slot of SLOTS) {
+      await window._add(window._col(window._db, 'blocages'), { date, slot, type:'day', reason });
+    }
+    showToast(`Journée du ${date} bloquée ✅`);
+    await loadBlockedDates();
+  } catch(e) { showToast('Erreur', 'error'); }
+}
+window.blockDay = blockDay;
+
+async function unblockDay() {
+  const date = document.getElementById('block-date').value;
+  if (!date) { showToast('Sélectionnez une date', 'error'); return; }
+  try {
+    const snap = await window._docs(window._col(window._db, 'blocages'));
+    for (const d of snap.docs) {
+      if (d.data().date === date) await window._upd(window._doc(window._db,'blocages',d.id), { _deleted: true });
+    }
+    // Supprimer via filtre local (Firebase lite ne supporte pas deleteDoc sans import extra)
+    // On recharge et on filtre
+    const snap2 = await window._docs(window._col(window._db, 'blocages'));
+    // Utiliser updateDoc pour marquer supprimé, puis filtrer à l'affichage
+    showToast(`Journée du ${date} débloquée ✅`);
+    await loadBlockedDates();
+  } catch(e) { showToast('Erreur', 'error'); }
+}
+window.unblockDay = unblockDay;
+
+async function blockSlot() {
+  const date = document.getElementById('block-slot-date').value;
+  const slot = document.getElementById('block-slot-time').value;
+  if (!date) { showToast('Sélectionnez une date', 'error'); return; }
+  try {
+    await window._add(window._col(window._db, 'blocages'), { date, slot, type:'slot', reason:'Indisponible' });
+    showToast(`Créneau ${slot} du ${date} bloqué ✅`);
+    await loadBlockedDates();
+  } catch(e) { showToast('Erreur', 'error'); }
+}
+window.blockSlot = blockSlot;
+
+async function unblockSlot() {
+  const date = document.getElementById('block-slot-date').value;
+  const slot = document.getElementById('block-slot-time').value;
+  if (!date) { showToast('Sélectionnez une date', 'error'); return; }
+  try {
+    const snap = await window._docs(window._col(window._db, 'blocages'));
+    for (const d of snap.docs) {
+      const b = d.data();
+      if (b.date === date && b.slot === slot && !b._deleted) {
+        await window._upd(window._doc(window._db,'blocages',d.id), { _deleted: true });
+      }
+    }
+    showToast(`Créneau débloqué ✅`);
+    await loadBlockedDates();
+  } catch(e) { showToast('Erreur', 'error'); }
+}
+window.unblockSlot = unblockSlot;
+
+async function unblockEntry(firestoreId) {
+  try {
+    await window._upd(window._doc(window._db,'blocages',firestoreId), { _deleted: true });
+    showToast('Blocage supprimé ✅');
+    await loadBlockedDates();
+  } catch(e) { showToast('Erreur', 'error'); }
+}
+window.unblockEntry = unblockEntry;
+
+function renderBlockedList() {
+  const list = document.getElementById('blockedList');
+  if (!list) return;
+  const allEntries = [];
+  Object.entries(blockedDates).forEach(([date, entries]) => {
+    entries.forEach(e => { if (!e._deleted) allEntries.push({ date, ...e }); });
+  });
+  if (allEntries.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-light); font-size:0.88rem;">Aucun blocage manuel pour l\'instant.</p>';
+    return;
+  }
+  allEntries.sort((a,b) => a.date.localeCompare(b.date));
+  list.innerHTML = allEntries.map(e => `
+    <div class="blocked-item">
+      <div>
+        <strong>${e.date}</strong>
+        <span class="slot-badge" style="margin-left:8px;">${e.slot}</span>
+        <span class="reason-badge" style="margin-left:4px;">${e.reason||'Bloqué'}</span>
+      </div>
+      <button class="btn-unblock" onclick="unblockEntry('${e.firestoreId}')">✕ Débloquer</button>
+    </div>`).join('');
+}
+
+async function saveDispoChip() {
+  const val = document.getElementById('dispo-chip-text').value.trim();
+  if (!val) { showToast('Texte vide', 'error'); return; }
+  // Mettre à jour sur le site
+  const chip = document.querySelector('.dispo-chip');
+  if (chip) chip.innerHTML = `<div class="dispo-dot"></div>${val}`;
+  // Sauvegarder en Firebase
+  try {
+    const snap = await window._docs(window._col(window._db, 'settings'));
+    let existingId = null;
+    snap.forEach(d => { if (d.data().key === 'dispo-chip') existingId = d.id; });
+    if (existingId) {
+      await window._upd(window._doc(window._db,'settings',existingId), { value: val });
+    } else {
+      await window._add(window._col(window._db,'settings'), { key:'dispo-chip', value:val });
+    }
+    showToast('Message de disponibilité mis à jour ✅');
+  } catch(e) { showToast('Mis à jour sur le site (non sauvegardé)', 'error'); }
+}
+window.saveDispoChip = saveDispoChip;
+
+async function loadDispoChip() {
+  if (!window._fbReady) return;
+  try {
+    const snap = await window._docs(window._col(window._db,'settings'));
+    snap.forEach(d => {
+      if (d.data().key === 'dispo-chip') {
+        const chip = document.querySelector('.dispo-chip');
+        const input = document.getElementById('dispo-chip-text');
+        if (chip) chip.innerHTML = `<div class="dispo-dot"></div>${d.data().value}`;
+        if (input) input.value = d.data().value;
+      }
+    });
+  } catch(e) {}
+}
+
+// ---- Disponibilités — intégration dans le calendrier ----
+// On override loadReservedDates pour aussi charger les blocages
+const _origLoadReservedDates = loadReservedDates;
+async function loadReservedDates() {
+  if (!window._fbReady) return;
+  try {
+    const [rSnap, bSnap] = await Promise.all([
+      window._docs(window._col(window._db, 'reservations')),
+      window._docs(window._col(window._db, 'blocages')),
+    ]);
+    reservedDates = {};
+    rSnap.forEach(d => {
+      const r = d.data();
+      if (r.date && r.slot && r.status !== 'cancelled') {
+        if (!reservedDates[r.date]) reservedDates[r.date] = [];
+        reservedDates[r.date].push(r.slot);
+      }
+    });
+    bSnap.forEach(d => {
+      const b = d.data();
+      if (b._deleted) return;
+      if (b.date && b.slot) {
+        if (!reservedDates[b.date]) reservedDates[b.date] = [];
+        if (!reservedDates[b.date].includes(b.slot)) reservedDates[b.date].push(b.slot);
+      }
+    });
+    // Stocker aussi les blocages séparément pour la liste admin
+    blockedDates = {};
+    bSnap.forEach(d => {
+      const b = d.data();
+      if (b._deleted) return;
+      if (!blockedDates[b.date]) blockedDates[b.date] = [];
+      blockedDates[b.date].push({ ...b, firestoreId: d.id });
+    });
+  } catch(e) { console.warn('Erreur chargement dates', e); }
+  renderCalendar();
+  renderBlockedList();
+}
+
+// ---- Disponibilités — chargement dans loadAdminData ----
 // ============================================================
 // INIT
 // ============================================================
@@ -1432,6 +1942,8 @@ let initInterval = setInterval(() => {
     clearInterval(initInterval);
     loadReservedDates();
     loadTarifsFromFirebase();
+    loadContactsFromFirebase();
+    loadDispoChip();
   }
 }, 200);
 renderCalendar();
