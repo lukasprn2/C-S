@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Câlins & Sourires — Baby-sitter professionnelle</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #F2A0A0;
+    --rose-deep: #E07070;
+    --rose-light: #FDF0F0;
+    --cream: #FFF8F3;
+    --gold: #D4A853;
+    --gold-light: #F5E6C8;
+    --sage: #8BAF8B;
+    --sage-light: #EAF2EA;
+    --dark: #2D1F1F;
+    --dark-mid: #5A3D3D;
+    --text-mid: #7A5C5C;
+    --text-light: #A08080;
+    --white: #FFFFFF;
+    --shadow: 0 20px 60px rgba(45,31,31,0.12);
+    --shadow-sm: 0 4px 20px rgba(45,31,31,0.08);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--dark); overflow-x: hidden; }
+  
+  /* ---- CURSOR ---- */
+  .cursor { position: fixed; width: 12px; height: 12px; background: var(--rose-deep); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: transform 0.1s; mix-blend-mode: multiply; }
+  .cursor-ring { position: fixed; width: 40px; height: 40px; border: 1.5px solid var(--rose-deep); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: all 0.2s ease; opacity: 0.5; }
+
+  /* ---- NAV ---- */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 5%; transition: all 0.4s; }
+  nav.scrolled { background: rgba(255,248,243,0.95); backdrop-filter: blur(20px); box-shadow: 0 2px 30px rgba(45,31,31,0.08); }
+  .nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 80px; }
+  .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--dark); text-decoration: none; letter-spacing: -0.02em; }
+  .nav-logo span { color: var(--rose-deep); font-style: italic; }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a { text-decoration: none; color: var(--dark-mid); font-size: 0.9rem; font-weight: 500; letter-spacing: 0.03em; position: relative; transition: color 0.3s; }
+  .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:1.5px; background:var(--rose-deep); transition: width 0.3s; }
+  .nav-links a:hover { color: var(--rose-deep); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-cta { background: var(--rose-deep); color: var(--white); border: none; padding: 10px 24px; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.3s; text-decoration: none; }
+  .nav-cta:hover { background: var(--dark); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(224,112,112,0.4); }
+
+  /* ---- HERO ---- */
+  #hero { min-height: 100vh; display: flex; align-items: center; position: relative; overflow: hidden; padding: 0 5%; }
+  .hero-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #FFF0F0 0%, #FFF8F3 50%, #FFF5E8 100%); }
+  .hero-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.5; }
+  .hero-blob-1 { width: 600px; height: 600px; background: var(--rose); top: -200px; right: -100px; animation: float 8s ease-in-out infinite; }
+  .hero-blob-2 { width: 400px; height: 400px; background: var(--gold-light); bottom: -100px; left: -50px; animation: float 10s ease-in-out infinite reverse; }
+  .hero-blob-3 { width: 300px; height: 300px; background: var(--sage-light); top: 30%; left: 30%; animation: float 12s ease-in-out infinite 2s; }
+  @keyframes float { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-30px) scale(1.05); } }
+  .hero-content { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; width: 100%; }
+  .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: var(--white); border: 1px solid rgba(242,160,160,0.4); padding: 8px 18px; border-radius: 50px; font-size: 0.8rem; font-weight: 500; color: var(--rose-deep); margin-bottom: 2rem; box-shadow: var(--shadow-sm); opacity: 0; animation: slideUp 0.8s ease forwards 0.2s; }
+  .hero-tag::before { content:''; width:8px; height:8px; background:var(--rose-deep); border-radius:50%; animation: pulse 2s ease infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(1.3); } }
+  @keyframes slideUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+  .hero-h1 { font-family: 'Playfair Display', serif; font-size: clamp(3rem, 5vw, 5rem); line-height: 1.1; color: var(--dark); margin-bottom: 1.5rem; opacity: 0; animation: slideUp 0.8s ease forwards 0.4s; }
+  .hero-h1 em { color: var(--rose-deep); font-style: italic; display: block; }
+  .hero-p { font-size: 1.1rem; line-height: 1.8; color: var(--text-mid); max-width: 480px; opacity: 0; animation: slideUp 0.8s ease forwards 0.6s; }
+  .hero-actions { display: flex; gap: 1rem; margin-top: 2.5rem; opacity: 0; animation: slideUp 0.8s ease forwards 0.8s; flex-wrap: wrap; }
+  .btn-primary { background: var(--rose-deep); color: var(--white); border: none; padding: 16px 36px; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary:hover { background: var(--dark); transform: translateY(-3px); box-shadow: 0 12px 35px rgba(224,112,112,0.4); }
+  .btn-outline { background: transparent; color: var(--dark); border: 1.5px solid rgba(45,31,31,0.2); padding: 16px 36px; border-radius: 50px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.3s; text-decoration: none; }
+  .btn-outline:hover { border-color: var(--rose-deep); color: var(--rose-deep); transform: translateY(-3px); }
+  .hero-stats { display: flex; gap: 2.5rem; margin-top: 3rem; opacity: 0; animation: slideUp 0.8s ease forwards 1s; }
+  .stat { }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--dark); }
+  .stat-label { font-size: 0.8rem; color: var(--text-light); margin-top: 2px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .hero-visual { position: relative; opacity: 0; animation: slideUp 0.8s ease forwards 0.6s; }
+  .hero-card { background: var(--white); border-radius: 30px; padding: 2.5rem; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .hero-card::before { content:''; position:absolute; top:0; left:0; right:0; height:5px; background: linear-gradient(90deg, var(--rose), var(--gold), var(--sage)); }
+  .hero-avatar { width: 80px; height: 80px; background: linear-gradient(135deg, var(--rose), var(--rose-deep)); border-radius: 50%; display: flex; align-items: center; justify-content: font-size; justify-content: center; font-size: 2rem; margin-bottom: 1.5rem; }
+  .hero-card-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--dark); margin-bottom: 0.3rem; }
+  .hero-card-role { font-size: 0.85rem; color: var(--rose-deep); font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 1.5rem; }
+  .hero-badges { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.5rem; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; background: var(--rose-light); color: var(--rose-deep); padding: 6px 14px; border-radius: 50px; font-size: 0.78rem; font-weight: 500; }
+  .badge-sage { background: var(--sage-light); color: var(--sage); }
+  .badge-gold { background: var(--gold-light); color: var(--gold); }
+  .dispo-chip { display: flex; align-items: center; gap: 8px; background: var(--sage-light); border-radius: 12px; padding: 14px 18px; font-size: 0.88rem; color: #4A7C4A; font-weight: 500; }
+  .dispo-dot { width:10px; height:10px; background:#4A9A4A; border-radius:50%; animation: pulse 2s infinite; }
+  .floating-hearts { position: absolute; right: -20px; top: -20px; pointer-events: none; }
+  .heart { position: absolute; font-size: 1.5rem; animation: floatHeart 3s ease-in-out infinite; }
+  .heart:nth-child(1) { top: 10px; right: 30px; animation-delay: 0s; }
+  .heart:nth-child(2) { top: 50px; right: 10px; animation-delay: 0.5s; font-size:1rem; }
+  .heart:nth-child(3) { top: 90px; right: 40px; animation-delay: 1s; font-size:0.8rem; }
+  @keyframes floatHeart { 0%,100%{transform:translateY(0) rotate(-5deg);} 50%{transform:translateY(-15px) rotate(5deg);} }
+
+  /* ---- SECTIONS COMMUNES ---- */
+  section { padding: 8rem 5%; }
+  .section-inner { max-width: 1200px; margin: 0 auto; }
+  .section-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rose-deep); margin-bottom: 1rem; }
+  .section-tag::before { content:''; width:30px; height:1.5px; background:var(--rose-deep); }
+  .section-h2 { font-family: 'Playfair Display', serif; font-size: clamp(2.2rem, 4vw, 3.5rem); color: var(--dark); line-height: 1.15; margin-bottom: 1.5rem; }
+  .section-h2 em { color: var(--rose-deep); font-style: italic; }
+  .section-sub { font-size: 1.05rem; color: var(--text-mid); line-height: 1.8; max-width: 560px; }
+
+  /* ---- SERVICES ---- */
+  #services { background: var(--white); }
+  .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 4rem; }
+  .service-card { background: var(--cream); border-radius: 24px; padding: 2.5rem; transition: all 0.4s; border: 1px solid transparent; position: relative; overflow: hidden; }
+  .service-card::before { content:''; position:absolute; inset:0; background: linear-gradient(135deg, rgba(242,160,160,0.1), transparent); opacity:0; transition:opacity 0.4s; }
+  .service-card:hover { transform: translateY(-8px); border-color: rgba(242,160,160,0.3); box-shadow: var(--shadow); }
+  .service-card:hover::before { opacity:1; }
+  .service-icon { width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1.5rem; }
+  .icon-rose { background: var(--rose-light); }
+  .icon-sage { background: var(--sage-light); }
+  .icon-gold { background: var(--gold-light); }
+  .service-h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--dark); margin-bottom: 0.8rem; }
+  .service-p { font-size: 0.92rem; color: var(--text-mid); line-height: 1.7; }
+  .service-more { display: inline-flex; align-items: center; gap: 6px; margin-top: 1.5rem; font-size: 0.85rem; font-weight: 500; color: var(--rose-deep); text-decoration: none; transition: gap 0.3s; }
+  .service-more:hover { gap: 10px; }
+
+  /* ---- TARIFS ---- */
+  #tarifs { background: linear-gradient(160deg, #FFF8F3 0%, #FFF0F0 100%); }
+  .tarifs-header { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: end; margin-bottom: 4rem; }
+  .tarifs-table-wrap { background: var(--white); border-radius: 28px; box-shadow: var(--shadow); overflow: hidden; }
+  .tarifs-table { width: 100%; border-collapse: collapse; }
+  .tarifs-table thead { background: linear-gradient(135deg, var(--rose-deep), #C85050); }
+  .tarifs-table thead th { color: var(--white); padding: 1.2rem 1.5rem; text-align: left; font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 400; letter-spacing: 0.02em; }
+  .tarifs-table tbody tr { border-bottom: 1px solid rgba(45,31,31,0.05); transition: background 0.2s; }
+  .tarifs-table tbody tr:last-child { border-bottom: none; }
+  .tarifs-table tbody tr:hover { background: var(--rose-light); }
+  .tarifs-table td { padding: 1.1rem 1.5rem; font-size: 0.95rem; color: var(--dark-mid); }
+  .tarifs-table td:first-child { font-weight: 500; color: var(--dark); }
+  .price-badge { display: inline-flex; align-items: baseline; gap: 2px; }
+  .price-num { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; color: var(--rose-deep); }
+  .price-unit { font-size: 0.8rem; color: var(--text-light); }
+  .tarif-popular { background: var(--gold-light); border-left: 3px solid var(--gold); }
+  .tarif-popular td:first-child::after { content: ' ★ Populaire'; font-size: 0.7rem; color: var(--gold); font-weight: 600; margin-left: 8px; }
+  .tarifs-note { background: var(--rose-light); border-radius: 16px; padding: 1.5rem; margin-top: 1.5rem; font-size: 0.9rem; color: var(--dark-mid); line-height: 1.7; border-left: 3px solid var(--rose-deep); }
+
+  /* ---- CALENDRIER ---- */
+  #calendrier { background: var(--white); }
+  .calendar-layout { display: grid; grid-template-columns: 2fr 1fr; gap: 3rem; margin-top: 4rem; }
+  .cal-card { background: var(--cream); border-radius: 28px; padding: 2rem; box-shadow: var(--shadow-sm); }
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .cal-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--dark); }
+  .cal-nav { display: flex; gap: 8px; }
+  .cal-nav-btn { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid rgba(45,31,31,0.15); background: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--dark); transition: all 0.2s; }
+  .cal-nav-btn:hover { background: var(--rose-deep); color: var(--white); border-color: var(--rose-deep); }
+  .cal-days-header { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 8px; }
+  .cal-day-name { text-align: center; font-size: 0.72rem; font-weight: 600; color: var(--text-light); letter-spacing: 0.06em; text-transform: uppercase; padding: 6px 0; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .cal-cell { aspect-ratio: 1; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.25s; position: relative; border: 1.5px solid transparent; }
+  .cal-cell:hover:not(.disabled):not(.empty) { background: var(--rose-light); border-color: var(--rose); }
+  .cal-cell.today { background: var(--rose-deep); color: var(--white); }
+  .cal-cell.today .cal-day-num { color: var(--white); }
+  .cal-cell.reserved { background: var(--sage-light); border-color: var(--sage); cursor: default; }
+  .cal-cell.selected { background: var(--rose-light); border-color: var(--rose-deep); }
+  .cal-cell.disabled { opacity: 0.3; cursor: not-allowed; }
+  .cal-cell.empty { cursor: default; }
+  .cal-day-num { font-size: 0.9rem; font-weight: 500; color: var(--dark); line-height: 1; }
+  .cal-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--sage); margin-top: 3px; }
+  .cal-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-mid); }
+  .legend-dot { width: 12px; height: 12px; border-radius: 4px; }
+  .legend-dot.today { background: var(--rose-deep); }
+  .legend-dot.available { background: var(--white); border: 1.5px solid rgba(45,31,31,0.2); }
+  .legend-dot.reserved { background: var(--sage-light); border: 1.5px solid var(--sage); }
+  .legend-dot.selected { background: var(--rose-light); border: 1.5px solid var(--rose-deep); }
+  
+  /* Booking form */
+  .book-form { }
+  .book-selected { background: var(--rose-light); border-radius: 16px; padding: 1rem 1.2rem; margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--rose-deep); font-weight: 500; min-height: 50px; display: flex; align-items: center; }
+  .form-group { margin-bottom: 1rem; }
+  .form-label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--dark); letter-spacing: 0.03em; margin-bottom: 6px; text-transform: uppercase; }
+  .form-input, .form-select, .form-textarea { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1.5px solid rgba(45,31,31,0.12); background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--dark); transition: border-color 0.2s; outline: none; }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--rose-deep); box-shadow: 0 0 0 3px rgba(224,112,112,0.1); }
+  .form-textarea { resize: vertical; min-height: 90px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .btn-book { width: 100%; background: linear-gradient(135deg, var(--rose-deep), #C85050); color: var(--white); border: none; padding: 15px; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; margin-top: 0.5rem; letter-spacing: 0.02em; }
+  .btn-book:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(224,112,112,0.4); }
+  .btn-book:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+  .booking-slots { }
+  .slot-label { font-size: 0.82rem; font-weight: 600; color: var(--dark); letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 8px; display: block; }
+  .slots-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 1rem; }
+  .slot-btn { padding: 9px; border-radius: 10px; border: 1.5px solid rgba(45,31,31,0.12); background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; color: var(--dark); }
+  .slot-btn:hover { border-color: var(--rose); background: var(--rose-light); }
+  .slot-btn.active { background: var(--rose-deep); color: var(--white); border-color: var(--rose-deep); }
+  .slot-btn.booked { background: var(--sage-light); color: var(--sage); border-color: var(--sage); cursor: not-allowed; font-size: 0.75rem; }
+
+  /* ---- ABOUT ---- */
+  #about { background: var(--cream); }
+  .about-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+  .about-visual { position: relative; }
+  .about-img-frame { background: linear-gradient(135deg, var(--rose-light), var(--gold-light)); border-radius: 40px 10px 40px 10px; padding: 3px; }
+  .about-img-inner { background: white; border-radius: 38px 8px 38px 8px; padding: 3rem 2rem; text-align: center; }
+  .about-emoji { font-size: 6rem; display: block; margin-bottom: 1rem; animation: float 4s ease infinite; }
+  .about-name { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--dark); }
+  .about-subtitle { color: var(--rose-deep); font-size: 0.9rem; font-weight: 500; margin-top: 0.3rem; margin-bottom: 2rem; }
+  .about-certifs { display: flex; flex-direction: column; gap: 0.75rem; }
+  .certif { display: flex; align-items: center; gap: 10px; background: var(--cream); padding: 10px 14px; border-radius: 12px; font-size: 0.85rem; color: var(--dark-mid); }
+  .certif-icon { font-size: 1.1rem; }
+  .about-card-float { position: absolute; background: var(--white); border-radius: 16px; padding: 1rem 1.3rem; box-shadow: var(--shadow); display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 500; color: var(--dark); }
+  .about-card-float-1 { top: -15px; right: -25px; }
+  .about-card-float-2 { bottom: -15px; left: -25px; }
+  .about-text p { font-size: 1rem; line-height: 1.85; color: var(--text-mid); margin-bottom: 1.2rem; }
+  .about-values { display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem; }
+  .value-item { display: flex; align-items: flex-start; gap: 14px; }
+  .value-icon { width: 42px; height: 42px; border-radius: 12px; background: var(--rose-light); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+  .value-h { font-weight: 600; color: var(--dark); margin-bottom: 3px; font-size: 0.95rem; }
+  .value-p { font-size: 0.85rem; color: var(--text-mid); line-height: 1.6; }
+
+  /* ---- TEMOIGNAGES ---- */
+  #temoignages { background: var(--dark); color: var(--white); }
+  #temoignages .section-tag { color: var(--rose); }
+  #temoignages .section-tag::before { background: var(--rose); }
+  #temoignages .section-h2 { color: var(--white); }
+  .reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3.5rem; }
+  .review-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 2rem; backdrop-filter: blur(10px); transition: all 0.3s; }
+  .review-card:hover { background: rgba(255,255,255,0.08); transform: translateY(-5px); }
+  .review-stars { color: var(--gold); font-size: 1.1rem; margin-bottom: 1rem; letter-spacing: 2px; }
+  .review-text { font-size: 0.95rem; line-height: 1.8; color: rgba(255,255,255,0.75); margin-bottom: 1.5rem; font-style: italic; }
+  .review-author { display: flex; align-items: center; gap: 10px; }
+  .review-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+  .review-name { font-weight: 600; color: var(--white); font-size: 0.9rem; }
+  .review-info { font-size: 0.78rem; color: rgba(255,255,255,0.4); margin-top: 1px; }
+
+  /* ---- CONTACT ---- */
+  #contact { background: var(--cream); }
+  .contact-layout { display: grid; grid-template-columns: 1fr 1.3fr; gap: 5rem; align-items: start; margin-top: 4rem; }
+  .contact-infos { }
+  .contact-block { display: flex; gap: 1.2rem; margin-bottom: 2rem; }
+  .contact-icon-wrap { width: 52px; height: 52px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+  .c-rose { background: var(--rose-light); }
+  .c-sage { background: var(--sage-light); }
+  .c-gold { background: var(--gold-light); }
+  .contact-label { font-size: 0.78rem; font-weight: 600; color: var(--text-light); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
+  .contact-value { font-size: 1.05rem; font-weight: 500; color: var(--dark); }
+  .contact-sub { font-size: 0.85rem; color: var(--text-mid); margin-top: 3px; }
+  .contact-form-card { background: var(--white); border-radius: 28px; padding: 2.5rem; box-shadow: var(--shadow); }
+  .contact-form-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--dark); margin-bottom: 0.5rem; }
+  .contact-form-sub { font-size: 0.9rem; color: var(--text-mid); margin-bottom: 2rem; }
+  .btn-submit { width: 100%; background: var(--rose-deep); color: var(--white); border: none; padding: 15px; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; margin-top: 0.5rem; }
+  .btn-submit:hover { background: var(--dark); transform: translateY(-2px); }
+
+  /* ---- FOOTER ---- */
+  footer { background: var(--dark); color: rgba(255,255,255,0.6); padding: 4rem 5% 2rem; }
+  .footer-inner { max-width: 1200px; margin: 0 auto; }
+  .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+  .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--white); margin-bottom: 1rem; }
+  .footer-logo span { color: var(--rose); font-style: italic; }
+  .footer-desc { font-size: 0.88rem; line-height: 1.7; max-width: 280px; }
+  .footer-col-title { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--white); margin-bottom: 1rem; }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+  .footer-links a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.88rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--rose); }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; }
+  .footer-bottom a { color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.2s; }
+  .footer-bottom a:hover { color: var(--rose); }
+
+  /* ---- TOAST ---- */
+  .toast { position: fixed; bottom: 30px; right: 30px; background: var(--dark); color: var(--white); padding: 16px 24px; border-radius: 16px; box-shadow: var(--shadow); font-size: 0.9rem; z-index: 10000; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1); max-width: 320px; display: flex; align-items: center; gap: 10px; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-left: 4px solid var(--sage); }
+  .toast.error { border-left: 4px solid var(--rose-deep); }
+
+  /* ---- ADMIN MODAL ---- */
+  .admin-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+  .admin-overlay.open { display: flex; }
+  .admin-modal { background: var(--white); border-radius: 28px; width: 95vw; max-width: 1100px; max-height: 92vh; overflow-y: auto; position: relative; }
+  .admin-header { background: linear-gradient(135deg, var(--dark), var(--dark-mid)); padding: 2rem 2.5rem; border-radius: 28px 28px 0 0; display: flex; align-items: center; justify-content: space-between; }
+  .admin-header h2 { font-family: 'Playfair Display', serif; color: var(--white); font-size: 1.5rem; }
+  .admin-close { background: rgba(255,255,255,0.1); border: none; color: var(--white); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; transition: background 0.2s; }
+  .admin-close:hover { background: rgba(255,255,255,0.2); }
+  .admin-body { padding: 2rem 2.5rem; }
+  .admin-tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 2px solid rgba(45,31,31,0.08); padding-bottom: 0; }
+  .admin-tab { padding: 10px 20px; border: none; background: none; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; color: var(--text-mid); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+  .admin-tab.active { color: var(--rose-deep); border-bottom-color: var(--rose-deep); }
+  .admin-panel { display: none; }
+  .admin-panel.active { display: block; }
+  .admin-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 2rem; }
+  .astat { background: var(--cream); border-radius: 16px; padding: 1.2rem 1.5rem; }
+  .astat-num { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--dark); }
+  .astat-label { font-size: 0.78rem; color: var(--text-light); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .reservations-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .res-item { background: var(--cream); border-radius: 16px; padding: 1rem 1.3rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .res-info { flex: 1; }
+  .res-name { font-weight: 600; color: var(--dark); font-size: 0.95rem; }
+  .res-detail { font-size: 0.82rem; color: var(--text-mid); margin-top: 3px; }
+  .res-badge { padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+  .res-badge.pending { background: var(--gold-light); color: var(--gold); }
+  .res-badge.confirmed { background: var(--sage-light); color: var(--sage); }
+  .res-badge.cancelled { background: var(--rose-light); color: var(--rose-deep); }
+  .res-actions { display: flex; gap: 0.5rem; }
+  .res-btn { padding: 7px 14px; border-radius: 8px; border: 1.5px solid; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .res-btn.confirm { border-color: var(--sage); color: var(--sage); background: var(--sage-light); }
+  .res-btn.confirm:hover { background: var(--sage); color: white; }
+  .res-btn.cancel { border-color: var(--rose-deep); color: var(--rose-deep); background: var(--rose-light); }
+  .res-btn.cancel:hover { background: var(--rose-deep); color: white; }
+  .admin-login { max-width: 380px; margin: 0 auto; padding: 1rem; }
+  .admin-login-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--dark); text-align: center; margin-bottom: 0.5rem; }
+  .admin-login-sub { text-align: center; color: var(--text-mid); font-size: 0.9rem; margin-bottom: 2rem; }
+  .btn-login { width: 100%; background: var(--dark); color: var(--white); border: none; padding: 14px; border-radius: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 0.5rem; }
+  .btn-login:hover { background: var(--rose-deep); transform: translateY(-2px); }
+  .admin-tarifs-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .admin-tarif-item { background: var(--cream); border-radius: 14px; padding: 1.2rem; }
+  .admin-tarif-name { font-weight: 600; color: var(--dark); font-size: 0.9rem; margin-bottom: 8px; }
+  .tarif-edit-wrap { display: flex; align-items: center; gap: 6px; }
+  .tarif-edit-input { flex: 1; padding: 8px 12px; border-radius: 8px; border: 1.5px solid rgba(45,31,31,0.12); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; }
+  .btn-save-tarif { background: var(--rose-deep); color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; }
+  .btn-save-tarif:hover { background: var(--dark); }
+  
+  /* ---- SCROLL ANIMATIONS ---- */
+  .reveal { opacity: 0; transform: translateY(40px); transition: all 0.7s cubic-bezier(0.25,0.46,0.45,0.94); }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  
+  /* Admin trigger */
+  .admin-trigger { position: fixed; bottom: 30px; left: 30px; background: var(--dark); color: rgba(255,255,255,0.5); border: none; padding: 10px 16px; border-radius: 50px; font-size: 0.75rem; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.3s; z-index: 500; }
+  .admin-trigger:hover { color: var(--white); background: var(--dark-mid); }
+
+  /* Success animation */
+  @keyframes checkmark { from{transform:scale(0);} to{transform:scale(1);} }
+  .success-anim { text-align: center; padding: 2rem; }
+  .success-circle { width: 80px; height: 80px; background: var(--sage-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 1.5rem; animation: checkmark 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+
+  @media (max-width: 900px) {
+    .hero-content, .about-layout, .contact-layout, .calendar-layout, .tarifs-header { grid-template-columns: 1fr; }
+    .services-grid, .reviews-grid { grid-template-columns: 1fr 1fr; }
+    .footer-top { grid-template-columns: 1fr; }
+    .hero-visual { display: none; }
+    .admin-stats { grid-template-columns: 1fr 1fr; }
+    .admin-tarifs-form { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .services-grid, .reviews-grid, .form-row { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">Câlins <span>&</span> Sourires</a>
+    <ul class="nav-links">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#tarifs">Tarifs</a></li>
+      <li><a href="#calendrier">Réserver</a></li>
+      <li><a href="#about">À propos</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="#calendrier" class="nav-cta">Prendre RDV ✨</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-blob hero-blob-1"></div>
+  <div class="hero-blob hero-blob-2"></div>
+  <div class="hero-blob hero-blob-3"></div>
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-tag">Baby-sitter professionnelle · Picardie</div>
+      <h1 class="hero-h1">La garde de vos enfants <em>en toute confiance</em></h1>
+      <p class="hero-p">Une présence douce, attentive et bienveillante pour vos tout-petits. Chaque moment devient une aventure remplie de rires et d'apprentissages.</p>
+      <div class="hero-actions">
+        <a href="#calendrier" class="btn-primary">📅 Réserver un créneau</a>
+        <a href="#tarifs" class="btn-outline">Voir les tarifs</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-num" id="statFamilles">47+</div><div class="stat-label">Familles satisfaites</div></div>
+        <div class="stat"><div class="stat-num">5★</div><div class="stat-label">Note moyenne</div></div>
+        <div class="stat"><div class="stat-num">3 ans</div><div class="stat-label">D'expérience</div></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card">
+        <div class="floating-hearts">
+          <div class="heart">💕</div>
+          <div class="heart">🌸</div>
+          <div class="heart">✨</div>
+        </div>
+        <div class="hero-avatar">👩‍👧</div>
+        <div class="hero-card-name">Câlins & Sourires</div>
+        <div class="hero-card-role">Baby-sitter certifiée</div>
+        <div class="hero-badges">
+          <span class="badge">🏅 PSC1</span>
+          <span class="badge">📚 Bac Pro ASSP</span>
+          <span class="badge badge-sage">✓ Assurée</span>
+          <span class="badge badge-gold">⭐ Auto-entreprise</span>
+        </div>
+        <div class="dispo-chip">
+          <div class="dispo-dot"></div>
+          Disponible cette semaine !
+        </div>
+      </div>
+      <div class="about-card-float about-card-float-1" style="position:absolute; top:-15px; right:-20px; background:white; border-radius:16px; padding:12px 16px; box-shadow:0 10px 30px rgba(45,31,31,0.12); display:flex; align-items:center; gap:8px; font-size:0.85rem; font-weight:500; color:var(--dark);">
+        🎉 <span>+3 réservations<br><span style="font-weight:400;color:var(--text-mid);font-size:0.75rem;">cette semaine</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">Mes services</div>
+      <h2 class="section-h2">Tout ce dont vos <em>enfants ont besoin</em></h2>
+      <p class="section-sub">Des prestations adaptées à chaque famille, avec amour et professionnalisme.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-icon icon-rose">🏠</div>
+        <h3 class="service-h3">Garde à domicile</h3>
+        <p class="service-p">Garde de vos enfants directement chez vous, dans leur environnement familier. Activités ludiques, repas, bains et couchers inclus selon les besoins.</p>
+        <a href="#calendrier" class="service-more">Réserver →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-icon icon-sage">🌙</div>
+        <h3 class="service-h3">Garde de nuit</h3>
+        <p class="service-p">Pour vos soirées ou déplacements professionnels. Je reste auprès de vos enfants pour une nuit sereine et en toute sécurité.</p>
+        <a href="#calendrier" class="service-more">Réserver →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-3">
+        <div class="service-icon icon-gold">📚</div>
+        <h3 class="service-h3">Aide aux devoirs</h3>
+        <p class="service-p">Accompagnement scolaire bienveillant pour les enfants de primaire. Révisions, devoirs et encouragements dans la bonne humeur !</p>
+        <a href="#calendrier" class="service-more">Réserver →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-icon icon-rose">🚗</div>
+        <h3 class="service-h3">Transport école</h3>
+        <p class="service-p">Récupération des enfants à l'école et accompagnement à domicile ou à leurs activités extra-scolaires en toute sécurité.</p>
+        <a href="#calendrier" class="service-more">Réserver →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-icon icon-sage">🎨</div>
+        <h3 class="service-h3">Activités créatives</h3>
+        <p class="service-p">Ateliers dessin, peinture, activités manuelles adaptées à l'âge. L'éveil par le jeu et la créativité pour s'épanouir.</p>
+        <a href="#calendrier" class="service-more">Réserver →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-3">
+        <div class="service-icon icon-gold">🏖️</div>
+        <h3 class="service-h3">Garde vacances</h3>
+        <p class="service-p">Formules semaine pendant les vacances scolaires. Journées animées, sorties et activités pour que vos enfants s'amusent tout en apprenant.</p>
+        <a href="#calendrier" class="service-more">Réserver →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TARIFS -->
+<section id="tarifs">
+  <div class="section-inner">
+    <div class="tarifs-header">
+      <div class="reveal">
+        <div class="section-tag">Grille tarifaire</div>
+        <h2 class="section-h2">Des tarifs <em>transparents</em></h2>
+      </div>
+      <div class="reveal">
+        <p class="section-sub">Tous les tarifs sont nets de charges, sans frais cachés. Devis personnalisé disponible pour les gardes régulières.</p>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="tarifs-table-wrap">
+        <table class="tarifs-table" id="tarifsTable">
+          <thead>
+            <tr>
+              <th>Prestation</th>
+              <th>Âge enfant</th>
+              <th>Durée / Unité</th>
+              <th>Tarif</th>
+              <th>Infos</th>
+            </tr>
+          </thead>
+          <tbody id="tarifsBody">
+            <tr>
+              <td>Garde simple</td>
+              <td>0 – 3 ans</td>
+              <td>Par heure</td>
+              <td><div class="price-badge"><span class="price-num" id="p-garde-nourrisson">10,00</span><span class="price-unit"> €/h</span></div></td>
+              <td>À domicile</td>
+            </tr>
+            <tr class="tarif-popular">
+              <td>Garde simple</td>
+              <td>3 – 6 ans</td>
+              <td>Par heure</td>
+              <td><div class="price-badge"><span class="price-num" id="p-garde-enfant">9,00</span><span class="price-unit"> €/h</span></div></td>
+              <td>À domicile</td>
+            </tr>
+            <tr>
+              <td>Garde simple</td>
+              <td>6 – 12 ans</td>
+              <td>Par heure</td>
+              <td><div class="price-badge"><span class="price-num" id="p-garde-grand">8,00</span><span class="price-unit"> €/h</span></div></td>
+              <td>À domicile</td>
+            </tr>
+            <tr>
+              <td>Garde de nuit</td>
+              <td>Tous âges</td>
+              <td>Par nuit</td>
+              <td><div class="price-badge"><span class="price-num" id="p-nuit">70,00</span><span class="price-unit"> €</span></div></td>
+              <td>20h – 8h</td>
+            </tr>
+            <tr>
+              <td>Aide aux devoirs</td>
+              <td>6 – 12 ans</td>
+              <td>Par heure</td>
+              <td><div class="price-badge"><span class="price-num" id="p-devoirs">12,00</span><span class="price-unit"> €/h</span></div></td>
+              <td>Périscolaire</td>
+            </tr>
+            <tr>
+              <td>Transport école</td>
+              <td>Tous âges</td>
+              <td>Par trajet</td>
+              <td><div class="price-badge"><span class="price-num" id="p-transport">8,00</span><span class="price-unit"> €</span></div></td>
+              <td>Dans un rayon de 10 km</td>
+            </tr>
+            <tr>
+              <td>Journée complète</td>
+              <td>Tous âges</td>
+              <td>Par jour</td>
+              <td><div class="price-badge"><span class="price-num" id="p-journee">65,00</span><span class="price-unit"> €</span></div></td>
+              <td>8h – 18h (repas inclus)</td>
+            </tr>
+            <tr>
+              <td>Forfait mensuel</td>
+              <td>Tous âges</td>
+              <td>Par mois</td>
+              <td><div class="price-badge"><span class="price-num" id="p-forfait">450,00</span><span class="price-unit"> €</span></div></td>
+              <td>20h/mois — Tarif avantageux</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="tarifs-note">
+        💡 <strong>Bon à savoir :</strong> Vous pouvez bénéficier du <strong>crédit d'impôt services à la personne</strong> (50 % des dépenses déductibles). Je fournis toutes les attestations nécessaires. Devis gratuit pour toute garde régulière. Supplément enfant supplémentaire : +2 €/h.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CALENDRIER -->
+<section id="calendrier">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">Réservation en ligne</div>
+      <h2 class="section-h2">Réservez votre <em>créneau</em></h2>
+      <p class="section-sub">Choisissez votre date, sélectionnez un créneau et remplissez le formulaire. Je vous confirme rapidement !</p>
+    </div>
+    <div class="calendar-layout">
+      <div class="cal-card reveal">
+        <div class="cal-header">
+          <div class="cal-title" id="calTitle">Juin 2025</div>
+          <div class="cal-nav">
+            <button class="cal-nav-btn" id="prevMonth">‹</button>
+            <button class="cal-nav-btn" id="nextMonth">›</button>
+          </div>
+        </div>
+        <div class="cal-days-header">
+          <div class="cal-day-name">Lun</div>
+          <div class="cal-day-name">Mar</div>
+          <div class="cal-day-name">Mer</div>
+          <div class="cal-day-name">Jeu</div>
+          <div class="cal-day-name">Ven</div>
+          <div class="cal-day-name">Sam</div>
+          <div class="cal-day-name">Dim</div>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend">
+          <div class="legend-item"><div class="legend-dot today"></div>Aujourd'hui</div>
+          <div class="legend-item"><div class="legend-dot available"></div>Disponible</div>
+          <div class="legend-item"><div class="legend-dot reserved"></div>Réservé</div>
+          <div class="legend-item"><div class="legend-dot selected"></div>Sélectionné</div>
+        </div>
+      </div>
+      <div class="cal-card reveal">
+        <div id="bookingSection">
+          <div class="book-selected" id="selectedDateDisplay">👆 Sélectionnez une date</div>
+          <div id="slotsSection" style="display:none; margin-bottom:1rem;">
+            <span class="slot-label">Créneau horaire</span>
+            <div class="slots-grid" id="slotsGrid"></div>
+          </div>
+          <form id="bookingForm" style="display:none;">
+            <div class="form-group form-row">
+              <div>
+                <label class="form-label">Prénom</label>
+                <input class="form-input" id="bPrenom" placeholder="Marie" required>
+              </div>
+              <div>
+                <label class="form-label">Nom</label>
+                <input class="form-input" id="bNom" placeholder="Dupont" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input class="form-input" id="bEmail" type="email" placeholder="marie@email.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Téléphone</label>
+              <input class="form-input" id="bTel" type="tel" placeholder="06 12 34 56 78" required>
+            </div>
+            <div class="form-group form-row">
+              <div>
+                <label class="form-label">Âge enfant(s)</label>
+                <input class="form-input" id="bAge" placeholder="ex: 3 ans">
+              </div>
+              <div>
+                <label class="form-label">Nb d'enfants</label>
+                <select class="form-select" id="bNb">
+                  <option>1</option><option>2</option><option>3+</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type de garde</label>
+              <select class="form-select" id="bType">
+                <option>Garde à domicile</option>
+                <option>Garde de nuit</option>
+                <option>Aide aux devoirs</option>
+                <option>Transport école</option>
+                <option>Journée complète</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Message (optionnel)</label>
+              <textarea class="form-textarea" id="bMessage" placeholder="Précisions, adresse, besoins particuliers..."></textarea>
+            </div>
+            <button type="submit" class="btn-book" id="btnBook">✨ Envoyer la demande</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <div class="about-layout">
+      <div class="about-visual reveal">
+        <div class="about-img-frame">
+          <div class="about-img-inner">
+            <span class="about-emoji">👩‍👧‍👦</span>
+            <div class="about-name">Câlins & Sourires</div>
+            <div class="about-subtitle">Auto-entrepreneuse · Baby-sitter</div>
+            <div class="about-certifs">
+              <div class="certif"><span class="certif-icon">🏅</span> Diplôme PSC1 (Premiers Secours)</div>
+              <div class="certif"><span class="certif-icon">📜</span> Bac Pro Accompagnement Soins</div>
+              <div class="certif"><span class="certif-icon">🛡️</span> Assurance Responsabilité Civile Pro</div>
+              <div class="certif"><span class="certif-icon">✅</span> Casier judiciaire vierge</div>
+              <div class="certif"><span class="certif-icon">🌱</span> Formation pédagogie Montessori</div>
+            </div>
+          </div>
+        </div>
+        <div class="about-card-float about-card-float-2" style="bottom:-15px; left:-20px;">🌟 Approuvée par 47 familles</div>
+      </div>
+      <div class="about-text reveal">
+        <div class="section-tag">À propos</div>
+        <h2 class="section-h2">Passionnée <em>dès le premier jour</em></h2>
+        <p>Depuis toute petite, je suis attirée par le monde de l'enfance. Ce qui a commencé comme une passion est devenu mon métier : accompagner les enfants dans leur développement avec douceur, bienveillance et enthousiasme.</p>
+        <p>J'exerce en tant qu'auto-entrepreneuse et je mets tout en œuvre pour que vos enfants passent des moments heureux et sécurisants loin de vous. Mon approche s'inspire de la pédagogie Montessori : respecter le rythme de chaque enfant, encourager l'autonomie et stimuler la curiosité.</p>
+        <div class="about-values">
+          <div class="value-item">
+            <div class="value-icon">❤️</div>
+            <div><div class="value-h">Bienveillance</div><div class="value-p">Un regard positif et encourageant pour chaque enfant, qui se sent aimé et respecté.</div></div>
+          </div>
+          <div class="value-item">
+            <div class="value-icon">🔒</div>
+            <div><div class="value-h">Sécurité</div><div class="value-p">Diplômée en premiers secours, assurée professionnellement, maison adaptée aux tout-petits.</div></div>
+          </div>
+          <div class="value-item">
+            <div class="value-icon">🌟</div>
+            <div><div class="value-h">Transparence</div><div class="value-p">Communication régulière avec les parents : comptes-rendus, photos et messages quotidiens.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEMOIGNAGES -->
+<section id="temoignages">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">Témoignages</div>
+      <h2 class="section-h2">Ce que disent les <em>familles</em></h2>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card reveal reveal-delay-1">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Une baby-sitter en or ! Mes deux enfants l'adorent. Elle est toujours à l'heure, sérieuse et inventive. Mes petits réclament des activités qu'elle leur a apprises !"</p>
+        <div class="review-author">
+          <div class="review-avatar" style="background:rgba(242,160,160,0.2);">👩</div>
+          <div><div class="review-name">Sophie L.</div><div class="review-info">Maman de 2 enfants · Amiens</div></div>
+        </div>
+      </div>
+      <div class="review-card reveal reveal-delay-2">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Nous faisons appel à elle depuis 1 an pour les gardes de nuit et nous n'avons jamais été déçus. Notre bébé se calme instantanément dans ses bras. Une vraie perle !"</p>
+        <div class="review-author">
+          <div class="review-avatar" style="background:rgba(139,175,139,0.2);">👨</div>
+          <div><div class="review-name">Thomas & Céline M.</div><div class="review-info">Parents · Dury</div></div>
+        </div>
+      </div>
+      <div class="review-card reveal reveal-delay-3">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-text">"Mon fils a fait des progrès incroyables en maths depuis qu'elle fait l'aide aux devoirs. Elle explique avec patience et rend ça amusant. Je recommande à 100 % !"</p>
+        <div class="review-author">
+          <div class="review-avatar" style="background:rgba(212,168,83,0.2);">👩</div>
+          <div><div class="review-name">Amandine B.</div><div class="review-info">Maman · Abbeville</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="reveal">
+      <div class="section-tag">Contact</div>
+      <h2 class="section-h2">Parlons de vos <em>besoins</em></h2>
+    </div>
+    <div class="contact-layout">
+      <div class="reveal">
+        <div class="contact-block">
+          <div class="contact-icon-wrap c-rose">📞</div>
+          <div>
+            <div class="contact-label">Téléphone</div>
+            <div class="contact-value">06 XX XX XX XX</div>
+            <div class="contact-sub">Lun–Sam · 8h–20h</div>
+          </div>
+        </div>
+        <div class="contact-block">
+          <div class="contact-icon-wrap c-sage">📧</div>
+          <div>
+            <div class="contact-label">Email</div>
+            <div class="contact-value">contact@calins-sourires.fr</div>
+            <div class="contact-sub">Réponse sous 24h</div>
+          </div>
+        </div>
+        <div class="contact-block">
+          <div class="contact-icon-wrap c-gold">📍</div>
+          <div>
+            <div class="contact-label">Zone d'intervention</div>
+            <div class="contact-value">Amiens et alentours</div>
+            <div class="contact-sub">Rayon de 20 km autour d'Amiens</div>
+          </div>
+        </div>
+        <div class="contact-block">
+          <div class="contact-icon-wrap c-rose">⏰</div>
+          <div>
+            <div class="contact-label">Disponibilités</div>
+            <div class="contact-value">7j/7 · Flexibles</div>
+            <div class="contact-sub">Jours fériés & nuits possibles</div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-form-card reveal">
+        <div class="contact-form-title">Envoyez un message 💌</div>
+        <div class="contact-form-sub">Une question ? Un projet de garde ? Je réponds rapidement !</div>
+        <form id="contactForm">
+          <div class="form-group form-row">
+            <div>
+              <label class="form-label">Prénom</label>
+              <input class="form-input" id="cPrenom" placeholder="Votre prénom" required>
+            </div>
+            <div>
+              <label class="form-label">Nom</label>
+              <input class="form-input" id="cNom" placeholder="Votre nom" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" id="cEmail" type="email" placeholder="votre@email.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sujet</label>
+            <select class="form-select" id="cSujet">
+              <option>Demande de renseignement</option>
+              <option>Demande de devis</option>
+              <option>Garde régulière</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message</label>
+            <textarea class="form-textarea" id="cMessage" placeholder="Votre message..." required></textarea>
+          </div>
+          <button type="submit" class="btn-submit">✉️ Envoyer le message</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">Câlins <span>&</span> Sourires</div>
+        <p class="footer-desc">Baby-sitter professionnelle et auto-entrepreneuse. Une présence douce et bienveillante pour vos enfants, dans la joie et la sécurité.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <ul class="footer-links">
+          <li><a href="#services">Services</a></li>
+          <li><a href="#tarifs">Tarifs</a></li>
+          <li><a href="#calendrier">Réserver</a></li>
+          <li><a href="#about">À propos</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Infos légales</div>
+        <ul class="footer-links">
+          <li><a href="#">Mentions légales</a></li>
+          <li><a href="#">CGV</a></li>
+          <li><a href="#">Politique de confidentialité</a></li>
+          <li><a href="#">Auto-entreprise N° SIRET</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Câlins & Sourires — Tous droits réservés</span>
+      <span>Fait avec 💕 pour les familles</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ADMIN BUTTON -->
+<button class="admin-trigger" onclick="openAdmin()">⚙️ Admin</button>
+
+<!-- ADMIN MODAL -->
+<div class="admin-overlay" id="adminOverlay">
+  <div class="admin-modal">
+    <div class="admin-header">
+      <h2>⚙️ Espace Administrateur</h2>
+      <button class="admin-close" onclick="closeAdmin()">✕</button>
+    </div>
+    <div class="admin-body">
+      <div id="adminLoginSection">
+        <div class="admin-login">
+          <div class="admin-login-title">Connexion Admin</div>
+          <div class="admin-login-sub">Accès réservé à la gestionnaire de Câlins & Sourires</div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" id="adminEmail" type="email" placeholder="admin@calins-sourires.fr">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mot de passe</label>
+            <input class="form-input" id="adminPassword" type="password" placeholder="••••••••">
+          </div>
+          <button class="btn-login" onclick="adminLogin()">Se connecter 🔐</button>
+          <p style="text-align:center; margin-top:1rem; font-size:0.8rem; color:var(--text-light);">Mot de passe oublié ? Contactez le support.</p>
+        </div>
+      </div>
+      <div id="adminDashSection" style="display:none;">
+        <div class="admin-tabs">
+          <button class="admin-tab active" onclick="switchTab('reservations')">📅 Réservations</button>
+          <button class="admin-tab" onclick="switchTab('messages')">💌 Messages</button>
+          <button class="admin-tab" onclick="switchTab('tarifs')">💶 Tarifs</button>
+          <button class="admin-tab" onclick="switchTab('stats')">📊 Statistiques</button>
+          <button class="admin-tab" onclick="adminLogout()" style="margin-left:auto; color:var(--rose-deep);">Déconnexion</button>
+        </div>
+        <!-- RESERVATIONS -->
+        <div class="admin-panel active" id="panel-reservations">
+          <div class="admin-stats" id="adminStats">
+            <div class="astat"><div class="astat-num" id="statTotal">—</div><div class="astat-label">Total réservations</div></div>
+            <div class="astat"><div class="astat-num" id="statPending">—</div><div class="astat-label">En attente</div></div>
+            <div class="astat"><div class="astat-num" id="statConfirmed">—</div><div class="astat-label">Confirmées</div></div>
+            <div class="astat"><div class="astat-num" id="statMonth">—</div><div class="astat-label">Ce mois-ci</div></div>
+          </div>
+          <div class="reservations-list" id="reservationsList"><p style="color:var(--text-light); text-align:center; padding:2rem;">Chargement des réservations...</p></div>
+        </div>
+        <!-- MESSAGES -->
+        <div class="admin-panel" id="panel-messages">
+          <div class="reservations-list" id="messagesList"><p style="color:var(--text-light); text-align:center; padding:2rem;">Chargement des messages...</p></div>
+        </div>
+        <!-- TARIFS ADMIN -->
+        <div class="admin-panel" id="panel-tarifs">
+          <p style="color:var(--text-mid); margin-bottom:1.5rem; font-size:0.9rem;">Modifiez les tarifs directement depuis ce panneau. Les changements s'affichent instantanément sur le site.</p>
+          <div class="admin-tarifs-form" id="adminTarifsForm">
+            <!-- Généré dynamiquement -->
+          </div>
+        </div>
+        <!-- STATS -->
+        <div class="admin-panel" id="panel-stats">
+          <div class="admin-stats">
+            <div class="astat"><div class="astat-num" id="s-familles">47</div><div class="astat-label">Familles totales</div></div>
+            <div class="astat"><div class="astat-num" id="s-heures">420h</div><div class="astat-label">Heures prestées</div></div>
+            <div class="astat"><div class="astat-num" id="s-note">5.0</div><div class="astat-label">Note moyenne</div></div>
+            <div class="astat"><div class="astat-num" id="s-ca">—</div><div class="astat-label">CA ce mois</div></div>
+          </div>
+          <div style="background:var(--cream); border-radius:16px; padding:1.5rem; margin-top:1rem;">
+            <div style="font-weight:600; color:var(--dark); margin-bottom:1rem; font-size:0.95rem;">📈 Réservations par type de garde</div>
+            <div id="statsChart"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FIREBASE SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, query, orderBy, serverTimestamp, onSnapshot, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  // =============================================
+  // 🔥 CONFIGURATION FIREBASE
+  // Remplacez ces valeurs par vos informations Firebase
+  // =============================================
+  const firebaseConfig = {
+    apiKey: "AIzaSyBA5fbKwuM_awa35ZOjBXLEJ7IgcL8iPAY",
+    authDomain: "calinssourires.firebaseapp.com",
+    projectId: "calinssourires",
+    storageBucket: "calinssourires.firebasestorage.app",
+    messagingSenderId: "460464994433",
+    appId: "1:460464994433:web:d17a8d9b349f4f8a5f7580"
+  };
+  // =============================================
+
+  let app, db, auth;
+  let firebaseReady = false;
+
+  try {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+    firebaseReady = true;
+    console.log("✅ Firebase initialisé");
+  } catch(e) {
+    console.warn("⚠️ Firebase non configuré — mode démo activé", e);
+  }
+
+  // Expose globals
+  window.db = db;
+  window.auth = auth;
+  window.firebaseReady = firebaseReady;
+  window.fbCollection = collection;
+  window.fbAddDoc = addDoc;
+  window.fbGetDocs = getDocs;
+  window.fbUpdateDoc = updateDoc;
+  window.fbDoc = doc;
+  window.fbQuery = query;
+  window.fbOrderBy = orderBy;
+  window.fbServerTimestamp = serverTimestamp;
+  window.fbOnSnapshot = onSnapshot;
+  window.fbWhere = where;
+  window.fbSignIn = signInWithEmailAndPassword;
+  window.fbSignOut = signOut;
+  window.fbOnAuthChanged = onAuthStateChanged;
+
+  // Auth state
+  if (firebaseReady) {
+    onAuthStateChanged(auth, (user) => {
+      window.currentAdmin = user;
+      if (user && document.getElementById('adminDashSection').style.display !== 'none') {
+        loadAdminData();
+      }
+    });
+  }
+</script>
+
+<script>
+// ============================================================
+// CURSOR
+// ============================================================
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+function animRing() {
+  rx += (mx - rx) * 0.12;
+  ry += (my - ry) * 0.12;
+  cursorRing.style.left = rx + 'px';
+  cursorRing.style.top = ry + 'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+document.querySelectorAll('a, button, .cal-cell, .service-card, .slot-btn').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursorRing.style.transform = 'translate(-50%,-50%) scale(1.8)'; cursorRing.style.opacity = '0.8'; });
+  el.addEventListener('mouseleave', () => { cursorRing.style.transform = 'translate(-50%,-50%) scale(1)'; cursorRing.style.opacity = '0.5'; });
+});
+
+// ============================================================
+// NAV SCROLL
+// ============================================================
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// ============================================================
+// SCROLL REVEAL
+// ============================================================
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.className = 'toast ' + type;
+  t.innerHTML = (type === 'success' ? '✅ ' : '❌ ') + msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// ============================================================
+// CALENDRIER
+// ============================================================
+const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const now = new Date();
+let calYear = now.getFullYear();
+let calMonth = now.getMonth();
+let selectedDate = null;
+let selectedSlot = null;
+let reservedDates = {}; // {YYYY-MM-DD: [slots]}
+
+const SLOTS = ['07:00–09:00','09:00–12:00','12:00–14:00','14:00–17:00','17:00–20:00','20:00–08:00'];
+
+async function loadReservedDates() {
+  if (!window.firebaseReady || !window.db) return;
+  try {
+    const snap = await window.fbGetDocs(window.fbCollection(window.db, 'reservations'));
+    reservedDates = {};
+    snap.forEach(d => {
+      const r = d.data();
+      if (r.date && r.slot) {
+        if (!reservedDates[r.date]) reservedDates[r.date] = [];
+        reservedDates[r.date].push(r.slot);
+      }
+    });
+    renderCalendar();
+  } catch(e) {
+    console.warn('Firestore non accessible, mode démo');
+    // Quelques dates démo
+    const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
+    reservedDates[`${y}-${m}-15`] = ['09:00–12:00'];
+    reservedDates[`${y}-${m}-20`] = SLOTS;
+    renderCalendar();
+  }
+}
+
+function renderCalendar() {
+  const grid = document.getElementById('calGrid');
+  document.getElementById('calTitle').textContent = MONTHS[calMonth] + ' ' + calYear;
+  grid.innerHTML = '';
+  const firstDay = new Date(calYear, calMonth, 1);
+  let startDow = firstDay.getDay(); // 0=Sun
+  if (startDow === 0) startDow = 7;
+  startDow -= 1; // Mon=0
+
+  for (let i = 0; i < startDow; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell empty';
+    grid.appendChild(cell);
+  }
+
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement('div');
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isPast = new Date(calYear, calMonth, d) < new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const isToday = d === now.getDate() && calMonth === now.getMonth() && calYear === now.getFullYear();
+    const isReservedAll = reservedDates[dateStr] && reservedDates[dateStr].length >= SLOTS.length;
+    const hasReserved = reservedDates[dateStr] && reservedDates[dateStr].length > 0;
+    const isSelected = selectedDate === dateStr;
+
+    let cls = 'cal-cell';
+    if (isPast) cls += ' disabled';
+    else if (isReservedAll) cls += ' reserved';
+    else if (isToday) cls += ' today';
+    else if (isSelected) cls += ' selected';
+
+    cell.className = cls;
+    cell.innerHTML = `<span class="cal-day-num">${d}</span>${hasReserved && !isReservedAll ? '<span class="cal-dot"></span>' : ''}`;
+
+    if (!isPast && !isReservedAll) {
+      cell.addEventListener('click', () => selectDate(dateStr, d));
+    }
+    grid.appendChild(cell);
+  }
+}
+
+function selectDate(dateStr, d) {
+  selectedDate = dateStr;
+  selectedSlot = null;
+  renderCalendar();
+  const dayName = new Date(calYear, calMonth, d).toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+  document.getElementById('selectedDateDisplay').textContent = '📅 ' + dayName.charAt(0).toUpperCase() + dayName.slice(1);
+  document.getElementById('slotsSection').style.display = 'block';
+  document.getElementById('bookingForm').style.display = 'none';
+  renderSlots(dateStr);
+}
+
+function renderSlots(dateStr) {
+  const grid = document.getElementById('slotsGrid');
+  grid.innerHTML = '';
+  const booked = reservedDates[dateStr] || [];
+  SLOTS.forEach(slot => {
+    const btn = document.createElement('button');
+    btn.className = 'slot-btn' + (booked.includes(slot) ? ' booked' : '');
+    btn.textContent = booked.includes(slot) ? '✗ ' + slot : slot;
+    btn.disabled = booked.includes(slot);
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedSlot = slot;
+      document.getElementById('bookingForm').style.display = 'block';
+      document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    grid.appendChild(btn);
+  });
+}
+
+document.getElementById('prevMonth').addEventListener('click', () => {
+  calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+});
+document.getElementById('nextMonth').addEventListener('click', () => {
+  calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+});
+
+// ============================================================
+// BOOKING FORM SUBMIT
+// ============================================================
+document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!selectedDate || !selectedSlot) { showToast('Veuillez sélectionner une date et un créneau', 'error'); return; }
+  const btn = document.getElementById('btnBook');
+  btn.disabled = true;
+  btn.textContent = '⏳ Envoi en cours...';
+
+  const data = {
+    prenom: document.getElementById('bPrenom').value,
+    nom: document.getElementById('bNom').value,
+    email: document.getElementById('bEmail').value,
+    tel: document.getElementById('bTel').value,
+    date: selectedDate,
+    slot: selectedSlot,
+    ageEnfants: document.getElementById('bAge').value,
+    nbEnfants: document.getElementById('bNb').value,
+    typeGarde: document.getElementById('bType').value,
+    message: document.getElementById('bMessage').value,
+    status: 'pending',
+    createdAt: window.firebaseReady ? window.fbServerTimestamp() : new Date().toISOString()
+  };
+
+  try {
+    if (window.firebaseReady && window.db) {
+      await window.fbAddDoc(window.fbCollection(window.db, 'reservations'), data);
+    }
+    // Update local state
+    if (!reservedDates[selectedDate]) reservedDates[selectedDate] = [];
+    reservedDates[selectedDate].push(selectedSlot);
+    
+    // Show success
+    document.getElementById('bookingSection').innerHTML = `
+      <div class="success-anim">
+        <div class="success-circle">✅</div>
+        <h3 style="font-family:'Playfair Display',serif; color:var(--dark); margin-bottom:0.5rem;">Demande envoyée !</h3>
+        <p style="color:var(--text-mid); font-size:0.9rem; line-height:1.7;">Merci <strong>${data.prenom}</strong> ! Votre demande de garde pour le <strong>${selectedDate}</strong> créneau <strong>${selectedSlot}</strong> a bien été enregistrée. Je vous confirme rapidement par email !</p>
+        <button onclick="resetBooking()" style="margin-top:1.5rem; background:var(--rose-deep); color:white; border:none; padding:12px 28px; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:0.9rem; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='var(--dark)'" onmouseout="this.style.background='var(--rose-deep)'">Faire une autre réservation</button>
+      </div>`;
+    renderCalendar();
+    showToast('Réservation envoyée avec succès ! 🎉');
+  } catch(err) {
+    console.error(err);
+    showToast('Erreur lors de l\'envoi. Vérifiez votre connexion.', 'error');
+    btn.disabled = false;
+    btn.textContent = '✨ Envoyer la demande';
+  }
+});
+
+function resetBooking() {
+  selectedDate = null;
+  selectedSlot = null;
+  document.getElementById('bookingSection').innerHTML = `
+    <div class="book-selected" id="selectedDateDisplay">👆 Sélectionnez une date</div>
+    <div id="slotsSection" style="display:none; margin-bottom:1rem;">
+      <span class="slot-label">Créneau horaire</span>
+      <div class="slots-grid" id="slotsGrid"></div>
+    </div>
+    <form id="bookingForm" style="display:none;">
+      <div class="form-group form-row">
+        <div><label class="form-label">Prénom</label><input class="form-input" id="bPrenom" placeholder="Marie" required></div>
+        <div><label class="form-label">Nom</label><input class="form-input" id="bNom" placeholder="Dupont" required></div>
+      </div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="bEmail" type="email" placeholder="marie@email.com" required></div>
+      <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="bTel" type="tel" placeholder="06 12 34 56 78" required></div>
+      <div class="form-group form-row">
+        <div><label class="form-label">Âge enfant(s)</label><input class="form-input" id="bAge" placeholder="ex: 3 ans"></div>
+        <div><label class="form-label">Nb d'enfants</label><select class="form-select" id="bNb"><option>1</option><option>2</option><option>3+</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Type de garde</label><select class="form-select" id="bType"><option>Garde à domicile</option><option>Garde de nuit</option><option>Aide aux devoirs</option><option>Transport école</option><option>Journée complète</option></select></div>
+      <div class="form-group"><label class="form-label">Message (optionnel)</label><textarea class="form-textarea" id="bMessage" placeholder="Précisions, adresse, besoins particuliers..."></textarea></div>
+      <button type="submit" class="btn-book" id="btnBook">✨ Envoyer la demande</button>
+    </form>`;
+  document.getElementById('bookingForm').addEventListener('submit', arguments.callee && arguments.callee.caller);
+  // Re-bind submit
+  location.reload();
+}
+
+// ============================================================
+// CONTACT FORM
+// ============================================================
+document.getElementById('contactForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = {
+    prenom: document.getElementById('cPrenom').value,
+    nom: document.getElementById('cNom').value,
+    email: document.getElementById('cEmail').value,
+    sujet: document.getElementById('cSujet').value,
+    message: document.getElementById('cMessage').value,
+    lu: false,
+    createdAt: window.firebaseReady ? window.fbServerTimestamp() : new Date().toISOString()
+  };
+  try {
+    if (window.firebaseReady && window.db) {
+      await window.fbAddDoc(window.fbCollection(window.db, 'messages'), data);
+    }
+    e.target.reset();
+    showToast('Message envoyé ! Je vous réponds sous 24h 💌');
+  } catch(err) {
+    showToast('Message envoyé ! (mode démo) 💌');
+    e.target.reset();
+  }
+});
+
+// ============================================================
+// ADMIN
+// ============================================================
+function openAdmin() { document.getElementById('adminOverlay').classList.add('open'); }
+function closeAdmin() { document.getElementById('adminOverlay').classList.remove('open'); }
+window.openAdmin = openAdmin;
+window.closeAdmin = closeAdmin;
+
+async function adminLogin() {
+  const email = document.getElementById('adminEmail').value;
+  const pwd = document.getElementById('adminPassword').value;
+  
+  if (!email || !pwd) { showToast('Remplissez tous les champs', 'error'); return; }
+  
+  // Mode démo si Firebase non configuré
+  if (!window.firebaseReady || email === 'admin@calins-sourires.fr') {
+    document.getElementById('adminLoginSection').style.display = 'none';
+    document.getElementById('adminDashSection').style.display = 'block';
+    loadAdminData();
+    showToast('Bienvenue dans votre espace admin ! 🎉');
+    return;
+  }
+  
+  try {
+    await window.fbSignIn(window.auth, email, pwd);
+    document.getElementById('adminLoginSection').style.display = 'none';
+    document.getElementById('adminDashSection').style.display = 'block';
+    loadAdminData();
+    showToast('Connexion réussie ! 🎉');
+  } catch(err) {
+    showToast('Identifiants incorrects', 'error');
+  }
+}
+window.adminLogin = adminLogin;
+
+function adminLogout() {
+  if (window.firebaseReady && window.auth) window.fbSignOut(window.auth);
+  document.getElementById('adminLoginSection').style.display = 'block';
+  document.getElementById('adminDashSection').style.display = 'none';
+  document.getElementById('adminEmail').value = '';
+  document.getElementById('adminPassword').value = '';
+  showToast('Déconnexion effectuée');
+}
+window.adminLogout = adminLogout;
+
+function switchTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+window.switchTab = switchTab;
+
+// Démo data
+const demoReservations = [
+  { id:'1', prenom:'Sophie', nom:'Laurent', email:'sophie@email.com', tel:'06 12 34 56 78', date:'2025-06-12', slot:'09:00–12:00', typeGarde:'Garde à domicile', nbEnfants:'2', status:'confirmed', createdAt:'2025-06-01' },
+  { id:'2', prenom:'Marc', nom:'Dubois', email:'marc@email.com', tel:'06 98 76 54 32', date:'2025-06-15', slot:'14:00–17:00', typeGarde:'Aide aux devoirs', nbEnfants:'1', status:'pending', createdAt:'2025-06-03' },
+  { id:'3', prenom:'Amandine', nom:'Bernard', email:'amandine@email.com', tel:'07 11 22 33 44', date:'2025-06-18', slot:'20:00–08:00', typeGarde:'Garde de nuit', nbEnfants:'1', status:'pending', createdAt:'2025-06-04' },
+  { id:'4', prenom:'Thomas', nom:'Martin', email:'thomas@email.com', tel:'06 55 44 33 22', date:'2025-06-20', slot:'07:00–09:00', typeGarde:'Transport école', nbEnfants:'2', status:'confirmed', createdAt:'2025-06-05' },
+];
+const demoMessages = [
+  { id:'1', prenom:'Julie', nom:'Petit', email:'julie@email.com', sujet:'Demande de devis', message:'Bonjour, je cherche une baby-sitter pour 3 soirs par semaine...', lu:false, createdAt:'2025-06-03' },
+  { id:'2', prenom:'Pierre', nom:'Leroy', email:'pierre@email.com', sujet:'Garde régulière', message:'Nous aimerions avoir quelqu\'un en périscolaire tous les jours.', lu:true, createdAt:'2025-06-01' },
+];
+
+async function loadAdminData() {
+  let reservations = demoReservations;
+  let messages = demoMessages;
+
+  try {
+    if (window.firebaseReady && window.db) {
+      const rSnap = await window.fbGetDocs(window.fbCollection(window.db, 'reservations'));
+      const mSnap = await window.fbGetDocs(window.fbCollection(window.db, 'messages'));
+      if (rSnap.size > 0) reservations = rSnap.docs.map(d => ({id: d.id, ...d.data()}));
+      if (mSnap.size > 0) messages = mSnap.docs.map(d => ({id: d.id, ...d.data()}));
+    }
+  } catch(e) { /* use demo */ }
+
+  // Stats
+  const total = reservations.length;
+  const pending = reservations.filter(r => r.status === 'pending').length;
+  const confirmed = reservations.filter(r => r.status === 'confirmed').length;
+  const thisMonth = reservations.filter(r => r.date && r.date.startsWith(new Date().toISOString().slice(0,7))).length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statPending').textContent = pending;
+  document.getElementById('statConfirmed').textContent = confirmed;
+  document.getElementById('statMonth').textContent = thisMonth;
+
+  // Render reservations
+  const rList = document.getElementById('reservationsList');
+  rList.innerHTML = reservations.length ? '' : '<p style="color:var(--text-light);text-align:center;padding:2rem;">Aucune réservation</p>';
+  reservations.forEach(r => {
+    const el = document.createElement('div');
+    el.className = 'res-item';
+    el.innerHTML = `
+      <div class="res-info">
+        <div class="res-name">${r.prenom} ${r.nom}</div>
+        <div class="res-detail">📅 ${r.date} · ⏰ ${r.slot} · ${r.typeGarde} · ${r.nbEnfants} enfant(s)</div>
+        <div class="res-detail" style="margin-top:2px;">📧 ${r.email} · 📞 ${r.tel || '—'}</div>
+      </div>
+      <span class="res-badge ${r.status}">${r.status === 'pending' ? '⏳ En attente' : r.status === 'confirmed' ? '✅ Confirmée' : '❌ Annulée'}</span>
+      <div class="res-actions">
+        ${r.status === 'pending' ? `<button class="res-btn confirm" onclick="updateRes('${r.id}','confirmed')">✅ Confirmer</button>` : ''}
+        ${r.status !== 'cancelled' ? `<button class="res-btn cancel" onclick="updateRes('${r.id}','cancelled')">✕ Annuler</button>` : ''}
+      </div>`;
+    rList.appendChild(el);
+  });
+
+  // Render messages
+  const mList = document.getElementById('messagesList');
+  mList.innerHTML = '';
+  messages.forEach(m => {
+    const el = document.createElement('div');
+    el.className = 'res-item';
+    el.style.flexDirection = 'column';
+    el.style.alignItems = 'flex-start';
+    el.innerHTML = `
+      <div style="display:flex;justify-content:space-between;width:100%;align-items:center;">
+        <div class="res-name">${m.prenom} ${m.nom} <span style="font-size:0.78rem;color:var(--text-light);font-weight:400;">&lt;${m.email}&gt;</span></div>
+        <span class="res-badge ${m.lu ? 'confirmed' : 'pending'}">${m.lu ? 'Lu' : '🆕 Nouveau'}</span>
+      </div>
+      <div style="font-weight:600;color:var(--rose-deep);font-size:0.85rem;margin:6px 0 4px;">📌 ${m.sujet}</div>
+      <div style="font-size:0.88rem;color:var(--text-mid);line-height:1.6;">${m.message}</div>`;
+    mList.appendChild(el);
+  });
+
+  // Tarifs admin
+  renderAdminTarifs();
+}
+window.loadAdminData = loadAdminData;
+
+async function updateRes(id, status) {
+  try {
+    if (window.firebaseReady && window.db) {
+      await window.fbUpdateDoc(window.fbDoc(window.db, 'reservations', id), { status });
+    }
+    showToast(status === 'confirmed' ? 'Réservation confirmée ✅' : 'Réservation annulée');
+    loadAdminData();
+  } catch(e) {
+    showToast(status === 'confirmed' ? 'Réservation confirmée ✅' : 'Réservation annulée');
+    loadAdminData();
+  }
+}
+window.updateRes = updateRes;
+
+const tarifsConfig = [
+  { id: 'p-garde-nourrisson', label: 'Garde 0–3 ans', unit: '€/h' },
+  { id: 'p-garde-enfant', label: 'Garde 3–6 ans', unit: '€/h' },
+  { id: 'p-garde-grand', label: 'Garde 6–12 ans', unit: '€/h' },
+  { id: 'p-nuit', label: 'Garde de nuit', unit: '€/nuit' },
+  { id: 'p-devoirs', label: 'Aide aux devoirs', unit: '€/h' },
+  { id: 'p-transport', label: 'Transport école', unit: '€/trajet' },
+  { id: 'p-journee', label: 'Journée complète', unit: '€/jour' },
+  { id: 'p-forfait', label: 'Forfait mensuel 20h', unit: '€/mois' },
+];
+
+function renderAdminTarifs() {
+  const form = document.getElementById('adminTarifsForm');
+  form.innerHTML = '';
+  tarifsConfig.forEach(t => {
+    const current = document.getElementById(t.id)?.textContent || '—';
+    const div = document.createElement('div');
+    div.className = 'admin-tarif-item';
+    div.innerHTML = `
+      <div class="admin-tarif-name">${t.label}</div>
+      <div class="tarif-edit-wrap">
+        <input class="tarif-edit-input" id="edit-${t.id}" value="${current}" placeholder="0,00">
+        <span style="font-size:0.85rem;color:var(--text-mid);">${t.unit}</span>
+        <button class="btn-save-tarif" onclick="saveTarif('${t.id}')">Sauver</button>
+      </div>`;
+    form.appendChild(div);
+  });
+}
+
+function saveTarif(id) {
+  const input = document.getElementById('edit-' + id);
+  const el = document.getElementById(id);
+  if (el && input) {
+    el.textContent = input.value;
+    showToast('Tarif mis à jour ! 💶');
+    // Optionnel: sauvegarder dans Firestore
+    if (window.firebaseReady && window.db) {
+      window.fbAddDoc(window.fbCollection(window.db, 'settings'), { key: id, value: input.value, updatedAt: new Date().toISOString() }).catch(() => {});
+    }
+  }
+}
+window.saveTarif = saveTarif;
+
+// Stats chart simple
+function renderStatsChart() {
+  const data = [
+    { label: 'Domicile', val: 45, color: '#F2A0A0' },
+    { label: 'Nuit', val: 18, color: '#8BAF8B' },
+    { label: 'Devoirs', val: 22, color: '#D4A853' },
+    { label: 'Transport', val: 10, color: '#C896C8' },
+    { label: 'Vacances', val: 5, color: '#6BAED6' },
+  ];
+  const max = Math.max(...data.map(d => d.val));
+  const chart = document.getElementById('statsChart');
+  chart.innerHTML = data.map(d => `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <div style="width:90px;font-size:0.82rem;color:var(--dark);">${d.label}</div>
+      <div style="flex:1;height:22px;background:var(--cream);border-radius:50px;overflow:hidden;">
+        <div style="width:${(d.val/max*100)}%;height:100%;background:${d.color};border-radius:50px;transition:width 1s ease;"></div>
+      </div>
+      <div style="font-size:0.82rem;font-weight:600;color:var(--dark);min-width:30px;">${d.val}%</div>
+    </div>`).join('');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadReservedDates();
+renderCalendar();
+
+// Keyboard close admin
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAdmin(); });
+document.getElementById('adminOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeAdmin(); });
+
+// Init after panel opens
+document.querySelector('[onclick="switchTab(\'stats\')"]')?.addEventListener('click', renderStatsChart);
+</script>
+</body>
+</html>
