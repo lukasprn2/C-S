@@ -32,10 +32,7 @@
   html { scroll-behavior: smooth; }
   body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--dark); overflow-x: hidden; }
 
-  /* ---- CURSOR ---- */
-  .cursor { position: fixed; width: 12px; height: 12px; background: var(--rose-deep); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: transform 0.1s; mix-blend-mode: multiply; }
-  .cursor-ring { position: fixed; width: 40px; height: 40px; border: 1.5px solid var(--rose-deep); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: all 0.2s ease; opacity: 0.5; }
-
+ 
   /* ---- NAV ---- */
   nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 5%; transition: all 0.4s; }
   nav.scrolled { background: rgba(255,248,243,0.95); backdrop-filter: blur(20px); box-shadow: 0 2px 30px rgba(45,31,31,0.08); }
@@ -345,8 +342,7 @@
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
+
 <div class="toast" id="toast"></div>
 
 <!-- NAV -->
@@ -959,25 +955,7 @@
 
 <!-- ===================== APP ===================== -->
 <script>
-// ============================================================
-// CURSOR
-// ============================================================
-const cursor = document.getElementById('cursor');
-const cursorRing = document.getElementById('cursorRing');
-let mx=0, my=0, rx=0, ry=0;
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  cursor.style.left = mx+'px'; cursor.style.top = my+'px';
-});
-(function animRing() {
-  rx += (mx-rx)*0.12; ry += (my-ry)*0.12;
-  cursorRing.style.left = rx+'px'; cursorRing.style.top = ry+'px';
-  requestAnimationFrame(animRing);
-})();
-document.querySelectorAll('a,button,.cal-cell,.service-card,.slot-btn').forEach(el => {
-  el.addEventListener('mouseenter', () => { cursorRing.style.transform='translate(-50%,-50%) scale(1.8)'; cursorRing.style.opacity='0.8'; });
-  el.addEventListener('mouseleave', () => { cursorRing.style.transform='translate(-50%,-50%) scale(1)';   cursorRing.style.opacity='0.5'; });
-});
+
 
 // ============================================================
 // NAV
