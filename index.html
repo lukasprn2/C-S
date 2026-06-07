@@ -559,7 +559,8 @@
               <div><label class="form-label">Nom</label><input class="form-input" id="bNom" placeholder="Dupont" required></div>
             </div>
             <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="bEmail" type="email" placeholder="marie@email.com" required></div>
-            <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="bTel" type="tel" placeholder="06 12 34 56 78" required></div>
+          <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" id="bTel" type="tel" placeholder="06 12 34 56 78" required></div>
+<div class="form-group"><label class="form-label">Adresse de garde</label><input class="form-input" id="bAdresse" placeholder="12 rue des Lilas, Amiens" required></div>
             <div class="form-group form-row">
               <div><label class="form-label">Âge enfant(s)</label><input class="form-input" id="bAge" placeholder="ex: 3 ans"></div>
               <div><label class="form-label">Nb d'enfants</label>
@@ -1350,6 +1351,7 @@ async function submitBooking(e) {
     nom:        document.getElementById('bNom').value.trim(),
     email:      document.getElementById('bEmail').value.trim(),
     tel:        document.getElementById('bTel').value.trim(),
+    adresse: document.getElementById('bAdresse').value.trim(),
     date:       selectedDate,
     slot:       selectedSlot,
     ageEnfants: document.getElementById('bAge').value.trim(),
