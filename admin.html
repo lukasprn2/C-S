@@ -663,7 +663,7 @@ let _blockedDates  = {};
 let _caEntries = [];
 const _tarifDocIds   = {};
 const _contactDocIds = {};
-const SLOTS = ['07:00–09:00','09:00–12:00','12:00–14:00','14:00–17:00','17:00–20:00','20:00–08:00'];
+
 
 async function loadAllData() {
   if (!window._fbReady) return;
@@ -807,8 +807,7 @@ window.deleteMsg = deleteMsg;
 
 // ── AGENDA ──
 let agendaWeekOffset = 0;
-const SLOT_HOURS  = { '07:00–09:00':{start:7,end:9},'09:00–12:00':{start:9,end:12},'12:00–14:00':{start:12,end:14},'14:00–17:00':{start:14,end:17},'17:00–20:00':{start:17,end:20},'20:00–08:00':{start:20,end:24} };
-const DISPLAY_HOURS = [7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+const DISPLAY_HOURS = [7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
 const DAY_NAMES   = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 const MONTH_SHORT = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
 
@@ -848,15 +847,35 @@ function renderAgenda() {
     days.forEach(d => {
       const ds = d.toISOString().slice(0, 10);
       let cell = '';
-      (weekRes[ds] || []).forEach(r => {
-        const sh = SLOT_HOURS[r.slot];
-        if (sh && sh.start === h) {
-          cell += `<div class="agenda-event confirmed" title="${r.prenom} ${r.nom} · ${r.typeGarde}">${r.prenom} ${r.nom.charAt(0)}.<br><small>${r.typeGarde}</small></div>`;
-        }
-      });
-      html += `<div class="agenda-cell">${cell}</div>`;
-    });
-  });
+     (weekRes[ds] || []).forEach(r => {
+  // Trouver le créneau correspondant dans _creneaux
+  const cren = _creneaux.find(c => c.label === r.slot);
+  if (cren) {
+    const startH = parseInt(cren.start.split(':')[0]);
+    const startM = parseInt(cren.start.split(':')[1]);
+    if (startH === h) {
+      const endH = parseInt(cren.end.split(':')[0]);
+      const dureeH = endH > startH ? endH - startH : (24 - startH + endH);
+      cell += `<div class="agenda-event confirmed" 
+        style="top:${startM > 0 ? (startM/60)*40 : 0}px; height:${dureeH * 40}px;"
+        title="${r.prenom} ${r.nom} · ${r.typeGarde}">
+        ${r.prenom} ${r.nom.charAt(0)}.<br>
+        <small>${cren.start}–${cren.end}</small>
+      </div>`;
+    }
+  } else if (r.slot && r.slot.includes('–')) {
+    // Fallback pour anciens créneaux encore en base
+    const parts = r.slot.split('–');
+    const startH = parseInt(parts[0]);
+    if (startH === h) {
+      cell += `<div class="agenda-event confirmed"
+        title="${r.prenom} ${r.nom} · ${r.typeGarde}">
+        ${r.prenom} ${r.nom.charAt(0)}.<br>
+        <small>${r.slot}</small>
+      </div>`;
+    }
+  }
+});
   html += '</div>';
   document.getElementById('agendaContainer').innerHTML = html;
 }
