@@ -1687,6 +1687,9 @@ const DAY_NAMES   = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 const MONTH_SHORT = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
 
 function renderAgenda() {
+  console.log('=== AGENDA DEBUG ===');
+  console.log('_allReservationsAdmin:', _allReservationsAdmin);
+  console.log('Confirmées:', _allReservationsAdmin.filter(r => r.status === 'confirmed'));
   const weekStart = getWeekStart(agendaWeekOffset);
   const weekEnd   = new Date(weekStart); weekEnd.setDate(weekEnd.getDate() + 6);
 
