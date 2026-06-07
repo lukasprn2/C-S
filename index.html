@@ -2177,7 +2177,10 @@ let initInterval = setInterval(async () => {
 }, 200);
 
 renderCalendar();
-
+// Ouvrir admin auto si paramètre URL
+if (new URLSearchParams(window.location.search).get('admin') === '1') {
+  window.addEventListener('load', () => setTimeout(openAdmin, 800));
+}
 // Fermer l'admin avec Échap ou clic sur le fond
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAdmin(); });
 document.getElementById('adminOverlay').addEventListener('click', e => {
