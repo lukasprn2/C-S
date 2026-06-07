@@ -225,6 +225,25 @@
       .sidebar { display: none; }
       .stats-grid, .ca-summary { grid-template-columns: 1fr; }
     }
+    .jour-toggle {
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  background:var(--cream);border-radius:12px;padding:10px 6px;
+  cursor:pointer;border:2px solid transparent;transition:all 0.2s;
+  font-size:0.78rem;font-weight:600;color:var(--text-mid);
+}
+.jour-toggle.actif {
+  background:var(--rose-light);border-color:var(--rose-deep);color:var(--rose-deep);
+}
+.jour-toggle .jour-emoji { font-size:1.3rem; }
+
+.creneau-item {
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--cream);border-radius:10px;padding:10px 14px;
+  margin-bottom:8px;font-size:0.88rem;color:var(--dark-mid);
+  border:1.5px solid rgba(45,31,31,0.07);
+}
+.creneau-item .creneau-label { font-weight:600;color:var(--dark); }
+.creneau-item .creneau-time { font-size:0.8rem;color:var(--text-mid); }
   </style>
 </head>
 <body>
@@ -391,46 +410,80 @@
         <div class="tarifs-grid" id="adminTarifsForm"></div>
       </div>
 
-      <!-- ── PANEL DISPOS ── -->
-      <div class="panel" id="panel-dispos">
-        <div class="dispo-block">
-          <div class="dispo-block-title">💬 Message de disponibilité (affiché sur le site)</div>
-          <div class="dispo-row">
-            <input class="dispo-input" id="dispo-chip-text" placeholder="Disponible cette semaine !">
-            <button class="btn-save" onclick="saveDispoChip()">Sauver</button>
-          </div>
-        </div>
-        <div class="dispo-block">
-          <div class="dispo-block-title">🚫 Bloquer / débloquer une journée entière</div>
-          <div class="dispo-row">
-            <input type="date" id="block-date" class="dispo-input">
-            <select id="block-reason" class="dispo-input">
-              <option value="Indisponible">Indisponible</option>
-              <option value="Congé">Congé</option>
-              <option value="Férié">Jour férié</option>
-              <option value="Personnel">Personnel</option>
-            </select>
-            <button class="btn-save" onclick="blockDay()">Bloquer</button>
-            <button class="btn-save" onclick="unblockDay()" style="background:var(--sage);">Débloquer</button>
-          </div>
-        </div>
-        <div class="dispo-block">
-          <div class="dispo-block-title">⏰ Bloquer un créneau spécifique</div>
-          <div class="dispo-row">
-            <input type="date" id="block-slot-date" class="dispo-input">
-            <select id="block-slot-time" class="dispo-input">
-              <option>07:00–09:00</option><option>09:00–12:00</option><option>12:00–14:00</option>
-              <option>14:00–17:00</option><option>17:00–20:00</option><option>20:00–08:00</option>
-            </select>
-            <button class="btn-save" onclick="blockSlot()">Bloquer</button>
-            <button class="btn-save" onclick="unblockSlot()" style="background:var(--sage);">Débloquer</button>
-          </div>
-        </div>
-        <div class="dispo-block">
-          <div class="dispo-block-title">📋 Jours et créneaux bloqués</div>
-          <div id="blockedList"><p style="color:var(--text-light);font-size:0.88rem;">Aucun blocage.</p></div>
-        </div>
+   <!-- ── PANEL DISPOS ── -->
+<div class="panel" id="panel-dispos">
+
+  <!-- Message chip -->
+  <div class="dispo-block">
+    <div class="dispo-block-title">💬 Message affiché sur le site</div>
+    <div class="dispo-row">
+      <input class="dispo-input" id="dispo-chip-text" placeholder="Ex : Disponible ce weekend !">
+      <button class="btn-save" onclick="saveDispoChip()">Sauver</button>
+    </div>
+  </div>
+
+  <!-- Jours actifs -->
+  <div class="dispo-block">
+    <div class="dispo-block-title">📅 Jours où tu travailles</div>
+    <div id="jours-actifs-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:1rem;"></div>
+    <button class="btn-save" onclick="saveJoursActifs()">💾 Sauvegarder les jours</button>
+  </div>
+
+  <!-- Créneaux personnalisés -->
+  <div class="dispo-block">
+    <div class="dispo-block-title">⏰ Créneaux horaires proposés</div>
+    <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:1rem;">Ces créneaux apparaissent quand un client choisit une date disponible.</p>
+
+    <div id="creneaux-list" style="margin-bottom:1rem;"></div>
+
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--cream);padding:12px;border-radius:12px;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <label style="font-size:0.78rem;font-weight:600;color:var(--dark);">De</label>
+        <input type="time" id="new-slot-start" class="dispo-input" style="width:110px;" value="18:30">
       </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <label style="font-size:0.78rem;font-weight:600;color:var(--dark);">À</label>
+        <input type="time" id="new-slot-end" class="dispo-input" style="width:110px;" value="22:00">
+      </div>
+      <input class="dispo-input" id="new-slot-label" placeholder="Nom (ex: Soir)" style="flex:1;min-width:120px;">
+      <button class="btn-save" onclick="addCreneau()">+ Ajouter</button>
+    </div>
+  </div>
+
+  <!-- Blocage journée -->
+  <div class="dispo-block">
+    <div class="dispo-block-title">🚫 Bloquer une journée entière</div>
+    <div class="dispo-row">
+      <input type="date" id="block-date" class="dispo-input">
+      <select id="block-reason" class="dispo-input">
+        <option value="Indisponible">Indisponible</option>
+        <option value="Congé">Congé</option>
+        <option value="Férié">Jour férié</option>
+        <option value="Personnel">Personnel</option>
+      </select>
+      <button class="btn-save" onclick="blockDay()">Bloquer</button>
+      <button class="btn-save" onclick="unblockDay()" style="background:var(--sage);">Débloquer</button>
+    </div>
+  </div>
+
+  <!-- Blocage créneau -->
+  <div class="dispo-block">
+    <div class="dispo-block-title">⛔ Bloquer un créneau spécifique</div>
+    <div class="dispo-row">
+      <input type="date" id="block-slot-date" class="dispo-input">
+      <select id="block-slot-time" class="dispo-input" id="block-slot-select"></select>
+      <button class="btn-save" onclick="blockSlot()">Bloquer</button>
+      <button class="btn-save" onclick="unblockSlot()" style="background:var(--sage);">Débloquer</button>
+    </div>
+  </div>
+
+  <!-- Liste des blocages -->
+  <div class="dispo-block">
+    <div class="dispo-block-title">📋 Jours et créneaux bloqués</div>
+    <div id="blockedList"><p style="color:var(--text-light);font-size:0.88rem;">Aucun blocage.</p></div>
+  </div>
+
+</div>
 
       <!-- ── PANEL CONTACTS ── -->
       <div class="panel" id="panel-contacts">
@@ -905,18 +958,138 @@ async function saveAllContacts() {
 window.saveAllContacts = saveAllContacts;
 
 // ── DISPOS ──
+const JOURS_NOMS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+const JOURS_EMOJI = ['😐','😐','😐','😐','😐','🎉','🌟'];
+// Par défaut : Sam(5) et Dim(6) actifs + soirées en semaine
+let _joursActifs = [false,false,false,false,false,true,true]; // index 0=Lun
+let _creneaux = []; // [{id, label, start, end}]
+let _blockedDates = {};
+
 async function loadDispos() {
   try {
-    const snap = await window._docs(window._col(window._db, 'blocages'));
+    // Charger jours actifs
+    const snapS = await window._docs(window._col(window._db, 'settings'));
+    snapS.forEach(d => {
+      if (d.data().key === 'jours-actifs') {
+        try { _joursActifs = JSON.parse(d.data().value); } catch(e) {}
+      }
+      if (d.data().key === 'dispo-chip') {
+        const inp = document.getElementById('dispo-chip-text');
+        if (inp) inp.value = d.data().value || '';
+      }
+    });
+
+    // Charger créneaux
+    const snapC = await window._docs(window._col(window._db, 'creneaux'));
+    _creneaux = snapC.docs.map(d => ({ firestoreId: d.id, ...d.data() }));
+    if (_creneaux.length === 0) {
+      // Créneaux par défaut si rien en base
+      _creneaux = [
+        { id: 'soir-semaine', label: 'Soir semaine', start: '18:30', end: '22:00' },
+        { id: 'matin-we', label: 'Matin weekend', start: '08:00', end: '12:00' },
+        { id: 'aprem-we', label: 'Après-midi weekend', start: '13:00', end: '18:00' },
+        { id: 'soir-we', label: 'Soir weekend', start: '18:30', end: '22:30' },
+        { id: 'nuit', label: 'Garde de nuit', start: '20:00', end: '08:00' },
+      ];
+    }
+
+    // Charger blocages
+    const snapB = await window._docs(window._col(window._db, 'blocages'));
     _blockedDates = {};
-    snap.forEach(d => {
+    snapB.docs.forEach(d => {
       const b = d.data();
       if (b._deleted) return;
       if (!_blockedDates[b.date]) _blockedDates[b.date] = [];
       _blockedDates[b.date].push({ ...b, firestoreId: d.id });
     });
+
+    renderJoursActifs();
+    renderCreneaux();
     renderBlockedList();
-  } catch(e) {}
+    refreshSlotSelect();
+  } catch(e) { console.error('loadDispos:', e); }
+}
+
+function renderJoursActifs() {
+  const grid = document.getElementById('jours-actifs-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  JOURS_NOMS.forEach((nom, i) => {
+    const div = document.createElement('div');
+    div.className = 'jour-toggle' + (_joursActifs[i] ? ' actif' : '');
+    div.innerHTML = `<span class="jour-emoji">${_joursActifs[i] ? (i >= 5 ? '🎉' : '✅') : '😴'}</span>${nom}`;
+    div.onclick = () => {
+      _joursActifs[i] = !_joursActifs[i];
+      renderJoursActifs();
+    };
+    grid.appendChild(div);
+  });
+}
+
+async function saveJoursActifs() {
+  try {
+    const snap = await window._docs(window._col(window._db, 'settings'));
+    let found = null;
+    snap.forEach(d => { if (d.data().key === 'jours-actifs') found = d.id; });
+    const val = JSON.stringify(_joursActifs);
+    if (found) {
+      await window._upd(window._doc(window._db, 'settings', found), { key: 'jours-actifs', value: val });
+    } else {
+      await window._add(window._col(window._db, 'settings'), { key: 'jours-actifs', value: val });
+    }
+    showToast('Jours de travail sauvegardés ✅');
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+}
+
+function renderCreneaux() {
+  const list = document.getElementById('creneaux-list');
+  if (!list) return;
+  if (_creneaux.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem;">Aucun créneau défini.</p>';
+    return;
+  }
+  list.innerHTML = _creneaux.map((c, i) => `
+    <div class="creneau-item">
+      <div>
+        <span class="creneau-label">${c.label}</span>
+        <span class="creneau-time" style="margin-left:10px;">⏰ ${c.start} → ${c.end}</span>
+      </div>
+      <button class="btn-unblock" onclick="deleteCreneau(${i})">✕ Supprimer</button>
+    </div>`).join('');
+  refreshSlotSelect();
+}
+
+async function addCreneau() {
+  const start = document.getElementById('new-slot-start').value;
+  const end = document.getElementById('new-slot-end').value;
+  const label = document.getElementById('new-slot-label').value.trim() || `${start}–${end}`;
+  if (!start || !end) { showToast('Remplis les heures', 'error'); return; }
+  const newC = { label, start, end, id: 'c-' + Date.now() };
+  try {
+    const ref = await window._add(window._col(window._db, 'creneaux'), newC);
+    _creneaux.push({ ...newC, firestoreId: ref.id });
+    renderCreneaux();
+    document.getElementById('new-slot-label').value = '';
+    showToast('Créneau ajouté ✅');
+  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+}
+
+async function deleteCreneau(i) {
+  const c = _creneaux[i];
+  if (!c) return;
+  try {
+    if (c.firestoreId) await window._del(window._doc(window._db, 'creneaux', c.firestoreId));
+    _creneaux.splice(i, 1);
+    renderCreneaux();
+    showToast('Créneau supprimé');
+  } catch(e) { showToast('Erreur', 'error'); }
+}
+window.deleteCreneau = deleteCreneau;
+
+function refreshSlotSelect() {
+  const sel = document.getElementById('block-slot-time');
+  if (!sel) return;
+  sel.innerHTML = _creneaux.map(c => `<option value="${c.label}">${c.label} (${c.start}–${c.end})</option>`).join('');
 }
 
 function renderBlockedList() {
@@ -934,7 +1107,7 @@ function renderBlockedList() {
         <span class="slot-badge" style="margin-left:8px;">${e.slot}</span>
         <span class="reason-badge" style="margin-left:4px;">${e.reason || 'Bloqué'}</span>
       </div>
-      <button class="btn-unblock" onclick="unblockEntry('${e.firestoreId}')">✕ Débloquer</button>
+      <button class="btn-unblock" onclick="unblockEntry('${e.firestoreId}')">✕</button>
     </div>`).join('');
 }
 
@@ -943,9 +1116,11 @@ async function blockDay() {
   const reason = document.getElementById('block-reason').value;
   if (!date) { showToast('Sélectionnez une date', 'error'); return; }
   try {
-    for (const slot of SLOTS) await window._add(window._col(window._db, 'blocages'), { date, slot, type:'day', reason });
-    showToast(`Journée ${date} bloquée ✅`); await loadDispos();
-  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+    const slots = _creneaux.length > 0 ? _creneaux.map(c => c.label) : ['Journée entière'];
+    for (const slot of slots)
+      await window._add(window._col(window._db, 'blocages'), { date, slot, type:'day', reason });
+    showToast(`${date} bloqué ✅`); await loadDispos();
+  } catch(e) { showToast('Erreur', 'error'); }
 }
 async function unblockDay() {
   const date = document.getElementById('block-date').value;
@@ -954,8 +1129,8 @@ async function unblockDay() {
     const snap = await window._docs(window._col(window._db, 'blocages'));
     for (const d of snap.docs.filter(d => d.data().date === date && !d.data()._deleted))
       await window._del(window._doc(window._db, 'blocages', d.id));
-    showToast(`Journée ${date} débloquée ✅`); await loadDispos();
-  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+    showToast(`${date} débloqué ✅`); await loadDispos();
+  } catch(e) { showToast('Erreur', 'error'); }
 }
 async function blockSlot() {
   const date = document.getElementById('block-slot-date').value;
@@ -963,8 +1138,8 @@ async function blockSlot() {
   if (!date) { showToast('Sélectionnez une date', 'error'); return; }
   try {
     await window._add(window._col(window._db, 'blocages'), { date, slot, type:'slot', reason:'Indisponible' });
-    showToast(`Créneau ${slot} bloqué ✅`); await loadDispos();
-  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+    showToast(`Créneau bloqué ✅`); await loadDispos();
+  } catch(e) { showToast('Erreur', 'error'); }
 }
 async function unblockSlot() {
   const date = document.getElementById('block-slot-date').value;
@@ -972,22 +1147,20 @@ async function unblockSlot() {
   if (!date) { showToast('Sélectionnez une date', 'error'); return; }
   try {
     const snap = await window._docs(window._col(window._db, 'blocages'));
-    for (const d of snap.docs.filter(d => d.data().date === date && d.data().slot === slot && !d.data()._deleted))
+    for (const d of snap.docs.filter(d => d.data().date === date && d.data().slot === slot))
       await window._del(window._doc(window._db, 'blocages', d.id));
     showToast('Créneau débloqué ✅'); await loadDispos();
-  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+  } catch(e) { showToast('Erreur', 'error'); }
 }
 async function unblockEntry(id) {
   try {
     await window._del(window._doc(window._db, 'blocages', id));
-    showToast('Blocage supprimé ✅'); await loadDispos();
-  } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
+    showToast('Supprimé ✅'); await loadDispos();
+  } catch(e) { showToast('Erreur', 'error'); }
 }
 window.blockDay = blockDay; window.unblockDay = unblockDay;
 window.blockSlot = blockSlot; window.unblockSlot = unblockSlot;
-window.unblockEntry = unblockEntry;
-
-// ── SETTINGS (dispo chip) ──
+window.unblockEntry = unblockEntry;// ── SETTINGS (dispo chip) ──
 async function loadSettings() {
   try {
     const snap = await window._docs(window._col(window._db, 'settings'));
