@@ -1180,7 +1180,8 @@ function showToast(msg, type='success') {
 // CALENDRIER
 // ============================================================
 const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-const SLOTS  = ['07:00–09:00','09:00–12:00','12:00–14:00','14:00–17:00','17:00–20:00','20:00–08:00'];
+let _siteCreneaux = [];
+let _siteJoursActifs = [false,false,false,false,false,true,true];
 const now    = new Date();
 let calYear  = now.getFullYear();
 let calMonth = now.getMonth();
@@ -1219,6 +1220,7 @@ async function loadReservedDates() {
       }
     });
   } catch(e) { console.warn('Erreur chargement dates', e); }
+ await loadSiteDispos();
   renderCalendar();
   renderBlockedList();
 }
@@ -1247,13 +1249,18 @@ function renderCalendar() {
     const isPast   = dateObj < today;
     const isToday  = dateObj.getTime() === today.getTime();
     const booked   = reservedDates[dateStr] || [];
-    const isFullyBooked = booked.length >= SLOTS.length;
+   const dayIdx = (dateObj.getDay() + 6) % 7;
+const isJourInactif = !_siteJoursActifs[dayIdx];
+const isFullyBooked = _siteCreneaux.length > 0 && booked.length >= _siteCreneaux.length;
     const isSelected    = selectedDate === dateStr;
     const isBlocked     = blockedDates[dateStr] && blockedDates[dateStr].some(b => !b._deleted);
+const dayIdx = (dateObj.getDay() + 6) % 7;
+    const isJourInactif = !_siteJoursActifs[dayIdx];
+    const isFullyBooked = _siteCreneaux.length > 0 && booked.length >= _siteCreneaux.length;
 
     const cell = document.createElement('div');
     let cls = 'cal-cell';
-    if (isPast)                          cls += ' disabled';
+    if (isPast || isJourInactif)         cls += ' disabled';
     else if (isFullyBooked || isBlocked) cls += ' reserved';
     else if (isSelected)                 cls += ' selected';
     else if (isToday)                    cls += ' today';
@@ -1261,7 +1268,7 @@ function renderCalendar() {
     cell.className = cls;
     cell.innerHTML = `<span class="cal-day-num">${d}</span>${(booked.length > 0 && !isFullyBooked) ? '<span class="cal-dot"></span>' : ''}`;
 
-    if (!isPast && !isFullyBooked && !isBlocked) {
+  if (!isPast && !isJourInactif && !isFullyBooked && !isBlocked) {
       cell.addEventListener('click', () => selectDate(dateStr, d));
     }
     grid.appendChild(cell);
@@ -1280,23 +1287,30 @@ function selectDate(dateStr, d) {
 }
 
 function renderSlots(dateStr) {
-  const grid  = document.getElementById('slotsGrid');
+  const grid = document.getElementById('slotsGrid');
   grid.innerHTML = '';
   const booked = reservedDates[dateStr] || [];
-  SLOTS.forEach(slot => {
+
+  if (_siteCreneaux.length === 0) {
+    grid.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem;">Aucun créneau disponible.</p>';
+    return;
+  }
+
+  _siteCreneaux.forEach(c => {
+    const isBooked = booked.includes(c.label);
     const btn = document.createElement('button');
-    const isBooked = booked.includes(slot);
     btn.type = 'button';
     btn.className = 'slot-btn' + (isBooked ? ' booked' : '');
-    btn.textContent = isBooked ? '✗ ' + slot : slot;
     btn.disabled = isBooked;
+    btn.style.whiteSpace = 'pre-line';
+    btn.textContent = isBooked ? `✗ ${c.label}` : `${c.label}\n${c.start}–${c.end}`;
     if (!isBooked) {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        selectedSlot = slot;
+        selectedSlot = c.label;
         document.getElementById('bookingForm').style.display = 'block';
-        document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        document.getElementById('bookingForm').scrollIntoView({ behavior:'smooth', block:'nearest' });
       });
     }
     grid.appendChild(btn);
@@ -1451,7 +1465,28 @@ window.switchTab = switchTab;
 // ============================================================
 let _allReservationsAdmin = [];
 let _currentFilter = 'all';
-
+async function loadSiteDispos() {
+  try {
+    const snapS = await window._docs(window._col(window._db, 'settings'));
+    snapS.forEach(d => {
+      if (d.data().key === 'jours-actifs') {
+        try { _siteJoursActifs = JSON.parse(d.data().value); } catch(e) {}
+      }
+    });
+    const snapC = await window._docs(window._col(window._db, 'creneaux'));
+    _siteCreneaux = snapC.docs.map(d => d.data());
+    if (_siteCreneaux.length === 0) {
+      _siteCreneaux = [
+        { label:'Soir semaine', start:'18:30', end:'22:00' },
+        { label:'Matin weekend', start:'08:00', end:'12:00' },
+        { label:'Après-midi weekend', start:'13:00', end:'18:00' },
+        { label:'Soir weekend', start:'18:30', end:'22:30' },
+        { label:'Garde de nuit', start:'20:00', end:'08:00' },
+      ];
+    }
+    renderCalendar();
+  } catch(e) { console.warn('loadSiteDispos:', e); }
+}
 async function loadAdminData() {
   if (!window._fbReady) return;
 
@@ -1470,13 +1505,16 @@ async function loadAdminData() {
   try {
     const snap = await window._docs(window._col(window._db, 'settings'));
     snap.forEach(d => {
-      if (d.data().key === 'dispo-chip') {
-        const inp  = document.getElementById('dispo-chip-text');
-        const chip = document.getElementById('dispo-chip-display');
-        if (inp)  inp.value = d.data().value;
-        if (chip) chip.innerHTML = `<div class="dispo-dot"></div>${d.data().value}`;
-      }
-    });
+  if (d.data().key === 'dispo-chip') {
+    const inp  = document.getElementById('dispo-chip-text');
+    const chip = document.getElementById('dispo-chip-display');
+    if (inp)  inp.value = d.data().value;
+    if (chip) chip.innerHTML = `<div class="dispo-dot"></div>${d.data().value}`;
+  }
+  if (d.data().key === 'jours-actifs') {
+    try { _siteJoursActifs = JSON.parse(d.data().value); } catch(e) {}
+  }
+});
   } catch(e) {}
 
   // Load blocked dates
