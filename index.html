@@ -1023,7 +1023,6 @@
     </div>
   </div>
 </div>
-
 <!-- ===================== FIREBASE ===================== -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -1085,17 +1084,11 @@
 
 <!-- ===================== EMAILJS ===================== -->
 <script>
-  // ============================================================
-  // ⚠️  EMAILJS — À CONFIGURER (gratuit sur emailjs.com)
-  //  Variables template "contact"   : {{from_name}}, {{from_email}}, {{sujet}}, {{message}}
-  //  Variables template "reservation": {{from_name}}, {{from_email}}, {{tel}}, {{date}}, {{slot}}, {{type_garde}}, {{nb_enfants}}, {{age_enfants}}, {{message}}
-  //  Variables template "confirmation": {{to_name}}, {{to_email}}, {{date}}, {{slot}}, {{type_garde}}
-  // ============================================================
   const EMAILJS_PUBLIC_KEY          = 'VOTRE_PUBLIC_KEY';
   const EMAILJS_SERVICE_ID          = 'VOTRE_SERVICE_ID';
   const EMAILJS_TEMPLATE_CONTACT    = 'VOTRE_TEMPLATE_CONTACT_ID';
   const EMAILJS_TEMPLATE_RESA       = 'VOTRE_TEMPLATE_RESERVATION_ID';
-  const EMAILJS_TEMPLATE_CONFIRM    = 'VOTRE_TEMPLATE_CONFIRMATION_ID'; // ← nouveau template de confirmation client
+  const EMAILJS_TEMPLATE_CONFIRM    = 'VOTRE_TEMPLATE_CONFIRMATION_ID';
 
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 
@@ -1124,7 +1117,6 @@
     });
   }
 
-  // Email de confirmation envoyé au CLIENT quand vous confirmez
   async function sendConfirmationToClient(reservation) {
     if (EMAILJS_PUBLIC_KEY === 'VOTRE_PUBLIC_KEY') return;
     try {
@@ -1135,14 +1127,11 @@
         slot:       reservation.slot,
         type_garde: reservation.typeGarde,
       });
-      console.log('✅ Email de confirmation envoyé au client');
-    } catch(e) {
-      console.warn('Email confirmation non envoyé:', e);
-    }
+    } catch(e) { console.warn('Email confirmation non envoyé:', e); }
   }
 
-  window.sendEmailContact        = sendEmailContact;
-  window.sendEmailReservation    = sendEmailReservation;
+  window.sendEmailContact         = sendEmailContact;
+  window.sendEmailReservation     = sendEmailReservation;
   window.sendConfirmationToClient = sendConfirmationToClient;
 </script>
 
@@ -1180,16 +1169,39 @@ function showToast(msg, type='success') {
 // CALENDRIER
 // ============================================================
 const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-let _siteCreneaux = [];
+let _siteCreneaux    = [];
 let _siteJoursActifs = [false,false,false,false,false,true,true];
 const now    = new Date();
 let calYear  = now.getFullYear();
 let calMonth = now.getMonth();
-let selectedDate = null;
-let selectedSlot = null;
+let selectedDate  = null;
+let selectedSlot  = null;
 let reservedDates = {};
 let blockedDates  = {};
 let allReservations = [];
+
+async function loadSiteDispos() {
+  try {
+    const snapS = await window._docs(window._col(window._db, 'settings'));
+    snapS.forEach(d => {
+      if (d.data().key === 'jours-actifs') {
+        try { _siteJoursActifs = JSON.parse(d.data().value); } catch(e) {}
+      }
+    });
+    const snapC = await window._docs(window._col(window._db, 'creneaux'));
+    _siteCreneaux = snapC.docs.map(d => d.data());
+    if (_siteCreneaux.length === 0) {
+      _siteCreneaux = [
+        { label:'Soir semaine',       start:'18:30', end:'22:00' },
+        { label:'Matin weekend',      start:'08:00', end:'12:00' },
+        { label:'Après-midi weekend', start:'13:00', end:'18:00' },
+        { label:'Soir weekend',       start:'18:30', end:'22:30' },
+        { label:'Garde de nuit',      start:'20:00', end:'08:00' },
+      ];
+    }
+    renderCalendar();
+  } catch(e) { console.warn('loadSiteDispos:', e); }
+}
 
 async function loadReservedDates() {
   if (!window._fbReady) return;
@@ -1198,7 +1210,7 @@ async function loadReservedDates() {
       window._docs(window._col(window._db, 'reservations')),
       window._docs(window._col(window._db, 'blocages')),
     ]);
-    reservedDates = {};
+    reservedDates   = {};
     allReservations = [];
     rSnap.forEach(d => {
       const r = { id: d.id, ...d.data() };
@@ -1220,7 +1232,7 @@ async function loadReservedDates() {
       }
     });
   } catch(e) { console.warn('Erreur chargement dates', e); }
- await loadSiteDispos();
+  await loadSiteDispos();
   renderCalendar();
   renderBlockedList();
 }
@@ -1244,19 +1256,17 @@ function renderCalendar() {
   const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const dateObj  = new Date(calYear, calMonth, d);
-    const today    = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const isPast   = dateObj < today;
-    const isToday  = dateObj.getTime() === today.getTime();
-    const booked   = reservedDates[dateStr] || [];
-   const dayIdx = (dateObj.getDay() + 6) % 7;
-const isJourInactif = !_siteJoursActifs[dayIdx];
-const isFullyBooked = _siteCreneaux.length > 0 && booked.length >= _siteCreneaux.length;
-    const isSelected    = selectedDate === dateStr;
-    const isBlocked     = blockedDates[dateStr] && blockedDates[dateStr].some(b => !b._deleted);
-const dayIdx = (dateObj.getDay() + 6) % 7;
+    const dateObj = new Date(calYear, calMonth, d);
+    const today   = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const isPast  = dateObj < today;
+    const isToday = dateObj.getTime() === today.getTime();
+    const booked  = reservedDates[dateStr] || [];
+
+    const dayIdx        = (dateObj.getDay() + 6) % 7;
     const isJourInactif = !_siteJoursActifs[dayIdx];
     const isFullyBooked = _siteCreneaux.length > 0 && booked.length >= _siteCreneaux.length;
+    const isSelected    = selectedDate === dateStr;
+    const isBlocked     = blockedDates[dateStr] && blockedDates[dateStr].some(b => !b._deleted);
 
     const cell = document.createElement('div');
     let cls = 'cal-cell';
@@ -1268,7 +1278,7 @@ const dayIdx = (dateObj.getDay() + 6) % 7;
     cell.className = cls;
     cell.innerHTML = `<span class="cal-day-num">${d}</span>${(booked.length > 0 && !isFullyBooked) ? '<span class="cal-dot"></span>' : ''}`;
 
-  if (!isPast && !isJourInactif && !isFullyBooked && !isBlocked) {
+    if (!isPast && !isJourInactif && !isFullyBooked && !isBlocked) {
       cell.addEventListener('click', () => selectDate(dateStr, d));
     }
     grid.appendChild(cell);
@@ -1287,7 +1297,7 @@ function selectDate(dateStr, d) {
 }
 
 function renderSlots(dateStr) {
-  const grid = document.getElementById('slotsGrid');
+  const grid   = document.getElementById('slotsGrid');
   grid.innerHTML = '';
   const booked = reservedDates[dateStr] || [];
 
@@ -1356,7 +1366,6 @@ async function submitBooking(e) {
     }
     try { await window.sendEmailReservation(data); } catch(emailErr) { console.warn('Email non envoyé:', emailErr); }
 
-    // FIX 1 : Marquer le créneau comme pris immédiatement + re-render le calendrier
     if (!reservedDates[selectedDate]) reservedDates[selectedDate] = [];
     reservedDates[selectedDate].push(selectedSlot);
     renderCalendar();
@@ -1465,32 +1474,10 @@ window.switchTab = switchTab;
 // ============================================================
 let _allReservationsAdmin = [];
 let _currentFilter = 'all';
-async function loadSiteDispos() {
-  try {
-    const snapS = await window._docs(window._col(window._db, 'settings'));
-    snapS.forEach(d => {
-      if (d.data().key === 'jours-actifs') {
-        try { _siteJoursActifs = JSON.parse(d.data().value); } catch(e) {}
-      }
-    });
-    const snapC = await window._docs(window._col(window._db, 'creneaux'));
-    _siteCreneaux = snapC.docs.map(d => d.data());
-    if (_siteCreneaux.length === 0) {
-      _siteCreneaux = [
-        { label:'Soir semaine', start:'18:30', end:'22:00' },
-        { label:'Matin weekend', start:'08:00', end:'12:00' },
-        { label:'Après-midi weekend', start:'13:00', end:'18:00' },
-        { label:'Soir weekend', start:'18:30', end:'22:30' },
-        { label:'Garde de nuit', start:'20:00', end:'08:00' },
-      ];
-    }
-    renderCalendar();
-  } catch(e) { console.warn('loadSiteDispos:', e); }
-}
+
 async function loadAdminData() {
   if (!window._fbReady) return;
 
-  // Load contacts into inputs
   try {
     const snap = await window._docs(window._col(window._db, 'contacts'));
     snap.forEach(d => {
@@ -1501,45 +1488,37 @@ async function loadAdminData() {
     });
   } catch(e) { console.warn('contacts load:', e); }
 
-  // Load dispo chip
   try {
     const snap = await window._docs(window._col(window._db, 'settings'));
     snap.forEach(d => {
-  if (d.data().key === 'dispo-chip') {
-    const inp  = document.getElementById('dispo-chip-text');
-    const chip = document.getElementById('dispo-chip-display');
-    if (inp)  inp.value = d.data().value;
-    if (chip) chip.innerHTML = `<div class="dispo-dot"></div>${d.data().value}`;
-  }
-  if (d.data().key === 'jours-actifs') {
-    try { _siteJoursActifs = JSON.parse(d.data().value); } catch(e) {}
-  }
-});
+      if (d.data().key === 'dispo-chip') {
+        const inp  = document.getElementById('dispo-chip-text');
+        const chip = document.getElementById('dispo-chip-display');
+        if (inp)  inp.value = d.data().value;
+        if (chip) chip.innerHTML = `<div class="dispo-dot"></div>${d.data().value}`;
+      }
+      if (d.data().key === 'jours-actifs') {
+        try { _siteJoursActifs = JSON.parse(d.data().value); } catch(e) {}
+      }
+    });
   } catch(e) {}
 
-  // Load blocked dates
   await loadReservedDates();
 
-  // Load reservations
   try {
     const rSnap = await window._docs(window._col(window._db, 'reservations'));
     _allReservationsAdmin = rSnap.docs.map(d => ({ id: d.id, ...d.data() }));
     _allReservationsAdmin.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
-    const total     = _allReservationsAdmin.length;
-    const pending   = _allReservationsAdmin.filter(r => r.status === 'pending').length;
-    const confirmed = _allReservationsAdmin.filter(r => r.status === 'confirmed').length;
     const ym = new Date().toISOString().slice(0, 7);
-    const thisMonth = _allReservationsAdmin.filter(r => r.date && r.date.startsWith(ym)).length;
-    document.getElementById('statTotal').textContent     = total;
-    document.getElementById('statPending').textContent   = pending;
-    document.getElementById('statConfirmed').textContent = confirmed;
-    document.getElementById('statMonth').textContent     = thisMonth;
+    document.getElementById('statTotal').textContent     = _allReservationsAdmin.length;
+    document.getElementById('statPending').textContent   = _allReservationsAdmin.filter(r => r.status === 'pending').length;
+    document.getElementById('statConfirmed').textContent = _allReservationsAdmin.filter(r => r.status === 'confirmed').length;
+    document.getElementById('statMonth').textContent     = _allReservationsAdmin.filter(r => r.date && r.date.startsWith(ym)).length;
 
     renderReservationsList(_currentFilter);
   } catch(e) { console.error('reservations load:', e); }
 
-  // Load messages
   try {
     const mSnap = await window._docs(window._col(window._db, 'messages'));
     const messages = mSnap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -1577,7 +1556,7 @@ window.loadAdminData = loadAdminData;
 
 function renderReservationsList(filter) {
   _currentFilter = filter;
-  const rList = document.getElementById('reservationsList');
+  const rList    = document.getElementById('reservationsList');
   const filtered = filter === 'all' ? _allReservationsAdmin : _allReservationsAdmin.filter(r => r.status === filter);
 
   if (filtered.length === 0) {
@@ -1587,9 +1566,8 @@ function renderReservationsList(filter) {
 
   rList.innerHTML = '';
   filtered.forEach(r => {
-    const el = document.createElement('div');
+    const el   = document.createElement('div');
     el.className = 'res-item';
-    // FIX : encodage JSON sécurisé pour l'attribut onclick
     const rJson = encodeURIComponent(JSON.stringify(r));
     el.innerHTML = `
       <div class="res-info">
@@ -1620,26 +1598,21 @@ window.filterRes = filterRes;
 async function updateRes(id, status, reservationDataEncoded) {
   try {
     await window._upd(window._doc(window._db, 'reservations', id), { status });
-
-    // FIX 2 : si on confirme → envoyer email + alimenter l'agenda
     if (status === 'confirmed' && reservationDataEncoded) {
       let r = null;
       try { r = JSON.parse(decodeURIComponent(reservationDataEncoded)); } catch(e) {}
       if (r && r.email) {
         await window.sendConfirmationToClient(r);
-        showToast('Réservation confirmée + email envoyé au client ✅');
+        showToast('Réservation confirmée + email envoyé ✅');
       } else {
         showToast('Réservation confirmée ✅');
       }
     } else {
       showToast(status === 'cancelled' ? 'Réservation annulée' : 'Statut mis à jour');
     }
-
     await loadAdminData();
     await loadReservedDates();
- // Toujours rafraîchir l'agenda après une confirmation
     renderAgenda();
-
   } catch(e) {
     console.error('updateRes error:', e);
     showToast('Erreur mise à jour', 'error');
@@ -1677,9 +1650,12 @@ async function deleteMessage(id) {
 window.deleteMessage = deleteMessage;
 
 // ============================================================
-// AGENDA — FIX : affiche uniquement les réservations confirmées
+// AGENDA
 // ============================================================
 let agendaWeekOffset = 0;
+const DISPLAY_HOURS = [7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
+const DAY_NAMES     = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+const MONTH_SHORT   = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
 
 function getWeekStart(offset) {
   const d = new Date();
@@ -1696,22 +1672,7 @@ window.agendaNext  = agendaNext;
 window.agendaPrev  = agendaPrev;
 window.agendaToday = agendaToday;
 
-const SLOT_HOURS = {
-  '07:00–09:00': { start: 7,  end: 9  },
-  '09:00–12:00': { start: 9,  end: 12 },
-  '12:00–14:00': { start: 12, end: 14 },
-  '14:00–17:00': { start: 14, end: 17 },
-  '17:00–20:00': { start: 17, end: 20 },
-  '20:00–08:00': { start: 20, end: 24 },
-};
-const DISPLAY_HOURS = [7, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
-const DAY_NAMES   = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-const MONTH_SHORT = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
-
 function renderAgenda() {
-  console.log('=== AGENDA DEBUG ===');
-  console.log('_allReservationsAdmin:', _allReservationsAdmin);
-  console.log('Confirmées:', _allReservationsAdmin.filter(r => r.status === 'confirmed'));
   const weekStart = getWeekStart(agendaWeekOffset);
   const weekEnd   = new Date(weekStart); weekEnd.setDate(weekEnd.getDate() + 6);
 
@@ -1725,7 +1686,6 @@ function renderAgenda() {
     days.push(d);
   }
 
-  // FIX : seules les réservations CONFIRMÉES s'affichent dans l'agenda
   const weekRes = {};
   days.forEach(d => {
     const ds = d.toISOString().slice(0, 10);
@@ -1733,7 +1693,6 @@ function renderAgenda() {
   });
 
   let html = '<div class="agenda-week">';
-
   html += '<div class="agenda-header" style="background:var(--dark-mid);">Heure</div>';
   days.forEach((d, i) => {
     const isToday = d.toDateString() === new Date().toDateString();
@@ -1744,12 +1703,18 @@ function renderAgenda() {
     html += `<div class="agenda-hour">${h}:00</div>`;
     days.forEach(d => {
       const ds = d.toISOString().slice(0, 10);
-      const dayRes = weekRes[ds] || [];
       let cellContent = '';
-      dayRes.forEach(r => {
-        const sh = SLOT_HOURS[r.slot];
-        if (sh && sh.start === h) {
-          cellContent += `<div class="agenda-event ${r.status}" title="${r.prenom} ${r.nom} · ${r.typeGarde}">${r.prenom} ${r.nom.charAt(0)}.<br><small>${r.typeGarde}</small></div>`;
+      (weekRes[ds] || []).forEach(r => {
+        const cren = _siteCreneaux.find(c => c.label === r.slot);
+        if (cren) {
+          const startH = parseInt(cren.start.split(':')[0]);
+          if (startH === h) {
+            cellContent += `<div class="agenda-event confirmed"
+              title="${r.prenom} ${r.nom} · ${r.typeGarde}">
+              ${r.prenom} ${r.nom.charAt(0)}.<br>
+              <small>${cren.start}–${cren.end}</small>
+            </div>`;
+          }
         }
       });
       html += `<div class="agenda-cell">${cellContent}</div>`;
@@ -1788,20 +1753,13 @@ async function saveCAEntry() {
   const montant = parseFloat(document.getElementById('ca-montant').value);
   const type    = document.getElementById('ca-type').value;
   const note    = document.getElementById('ca-note').value.trim();
-
-  if (!date || isNaN(montant) || montant <= 0) {
-    showToast('Date et montant requis', 'error'); return;
-  }
-
+  if (!date || isNaN(montant) || montant <= 0) { showToast('Date et montant requis', 'error'); return; }
   try {
-    await window._add(window._col(window._db, 'ca'), {
-      date, montant, type, note,
-      createdAt: window._ts()
-    });
+    await window._add(window._col(window._db, 'ca'), { date, montant, type, note, createdAt: window._ts() });
     showToast('Entrée ajoutée ✅');
     document.getElementById('addCAForm').style.display = 'none';
     document.getElementById('ca-montant').value = '';
-    document.getElementById('ca-note').value = '';
+    document.getElementById('ca-note').value    = '';
     await loadCAEntries();
     renderCA();
   } catch(e) { showToast('Erreur sauvegarde', 'error'); }
@@ -1820,57 +1778,44 @@ async function deleteCAEntry(id) {
 window.deleteCAEntry = deleteCAEntry;
 
 function renderCA() {
-  const entries = _caEntries;
   const now2 = new Date();
-  const ym = now2.toISOString().slice(0, 7);
-  const y  = now2.getFullYear().toString();
+  const ym   = now2.toISOString().slice(0, 7);
+  const y    = now2.getFullYear().toString();
+  const thisMonth = _caEntries.filter(e => e.date && e.date.startsWith(ym));
+  const thisYear  = _caEntries.filter(e => e.date && e.date.startsWith(y));
+  const sum = arr => arr.reduce((s, e) => s + (e.montant || 0), 0);
 
-  const thisMonthEntries = entries.filter(e => e.date && e.date.startsWith(ym));
-  const thisYearEntries  = entries.filter(e => e.date && e.date.startsWith(y));
-
-  const sumMonth = thisMonthEntries.reduce((s, e) => s + (e.montant || 0), 0);
-  const sumYear  = thisYearEntries.reduce((s, e) => s + (e.montant || 0), 0);
-  const sumTotal = entries.reduce((s, e) => s + (e.montant || 0), 0);
-
-  document.getElementById('ca-mois').textContent     = sumMonth.toFixed(2) + ' €';
-  document.getElementById('ca-mois-nb').textContent  = thisMonthEntries.length + ' prestation(s)';
-  document.getElementById('ca-annee').textContent    = sumYear.toFixed(2) + ' €';
-  document.getElementById('ca-annee-nb').textContent = thisYearEntries.length + ' prestation(s)';
-  document.getElementById('ca-total').textContent    = sumTotal.toFixed(2) + ' €';
-  document.getElementById('ca-total-nb').textContent = entries.length + ' entrée(s)';
+  document.getElementById('ca-mois').textContent     = sum(thisMonth).toFixed(2) + ' €';
+  document.getElementById('ca-mois-nb').textContent  = thisMonth.length + ' prestation(s)';
+  document.getElementById('ca-annee').textContent    = sum(thisYear).toFixed(2) + ' €';
+  document.getElementById('ca-annee-nb').textContent = thisYear.length + ' prestation(s)';
+  document.getElementById('ca-total').textContent    = sum(_caEntries).toFixed(2) + ' €';
+  document.getElementById('ca-total-nb').textContent = _caEntries.length + ' entrée(s)';
 
   const months = ['Jan','Fév','Mar','Avr','Mai','Jui','Jul','Aoû','Sep','Oct','Nov','Déc'];
-  const monthTotals = Array(12).fill(0);
-  thisYearEntries.forEach(e => {
-    if (e.date) {
-      const m = parseInt(e.date.slice(5, 7)) - 1;
-      monthTotals[m] += e.montant || 0;
-    }
-  });
-  const maxVal = Math.max(...monthTotals, 1);
-  const barsHtml = monthTotals.map((val, i) => {
-    const pct = Math.round((val / maxVal) * 100);
+  const mt = Array(12).fill(0);
+  thisYear.forEach(e => { if (e.date) mt[parseInt(e.date.slice(5,7))-1] += e.montant || 0; });
+  const maxV = Math.max(...mt, 1);
+  document.getElementById('ca-bars').innerHTML = mt.map((v, i) => {
+    const pct = Math.round((v / maxV) * 100);
     return `<div class="ca-bar-row">
       <div class="ca-bar-label">${months[i]}</div>
-      <div class="ca-bar-track">
-        <div class="ca-bar-fill" style="width:${pct}%">${val > 0 ? val.toFixed(0)+'€' : ''}</div>
-      </div>
+      <div class="ca-bar-track"><div class="ca-bar-fill" style="width:${pct}%">${v > 0 ? v.toFixed(0)+'€' : ''}</div></div>
     </div>`;
   }).join('');
-  document.getElementById('ca-bars').innerHTML = barsHtml;
 
   const tbody = document.getElementById('ca-table-body');
-  if (entries.length === 0) {
+  if (_caEntries.length === 0) {
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-light);">Aucune entrée pour l\'instant.</td></tr>';
     return;
   }
-  tbody.innerHTML = entries.map(e => `
+  tbody.innerHTML = _caEntries.map(e => `
     <tr>
-      <td>${e.date || '—'}</td>
-      <td>${e.type || '—'}</td>
-      <td style="color:var(--text-mid);font-size:0.85rem;">${e.note || '—'}</td>
+      <td>${e.date||'—'}</td>
+      <td>${e.type||'—'}</td>
+      <td style="color:var(--text-mid);font-size:0.85rem;">${e.note||'—'}</td>
       <td class="amount">${(e.montant||0).toFixed(2)} €</td>
-      <td><button onclick="deleteCAEntry('${e.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.5;" title="Supprimer">🗑️</button></td>
+      <td><button onclick="deleteCAEntry('${e.id}')" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.5;">🗑️</button></td>
     </tr>`).join('');
 }
 
@@ -1893,7 +1838,7 @@ async function loadTarifsFromFirebase() {
   try {
     const snap = await window._docs(window._col(window._db, 'tarifs'));
     snap.forEach(d => {
-      const t = d.data();
+      const t  = d.data();
       const el = document.getElementById(t.key);
       if (el && t.value) el.textContent = t.value;
     });
@@ -1918,7 +1863,6 @@ function renderAdminTarifs() {
   });
 }
 
-// FIX : cache des IDs tarifs pour éviter les doublons
 const _tarifDocIds = {};
 
 async function _loadTarifDocIds() {
@@ -1935,9 +1879,7 @@ async function saveTarif(id) {
   if (!el || !input) return;
   const val = input.value.trim();
   if (!val) { showToast('Valeur vide', 'error'); return; }
-
   el.textContent = val;
-
   try {
     if (_tarifDocIds[id]) {
       await window._upd(window._doc(window._db, 'tarifs', _tarifDocIds[id]), { key: id, value: val });
@@ -1946,15 +1888,12 @@ async function saveTarif(id) {
       _tarifDocIds[id] = ref.id;
     }
     showToast('Tarif mis à jour 💶');
-  } catch(e) {
-    console.error('saveTarif error:', e);
-    showToast('Erreur sauvegarde tarif : ' + e.message, 'error');
-  }
+  } catch(e) { showToast('Erreur sauvegarde tarif : ' + e.message, 'error'); }
 }
 window.saveTarif = saveTarif;
 
 // ============================================================
-// CONTACTS — upsert avec cache des IDs
+// CONTACTS
 // ============================================================
 function applyContactToSite(key, value) {
   const map = {
@@ -1993,17 +1932,15 @@ async function _upsertContact(key, value) {
 }
 
 async function saveAllContacts() {
-  // FIX : recharger les IDs avant de sauvegarder pour éviter la race condition
   await _loadContactDocIds();
-
   const fields = [
-    { id: 'c-tel',          key: 'tel'          },
-    { id: 'c-tel-hours',    key: 'tel-hours'    },
-    { id: 'c-email-public', key: 'email-public' },
-    { id: 'c-zone',         key: 'zone'         },
-    { id: 'c-zone-sub',     key: 'zone-sub'     },
-    { id: 'c-dispo',        key: 'dispo'        },
-    { id: 'c-dispo-sub',    key: 'dispo-sub'    },
+    { id:'c-tel',          key:'tel'          },
+    { id:'c-tel-hours',    key:'tel-hours'    },
+    { id:'c-email-public', key:'email-public' },
+    { id:'c-zone',         key:'zone'         },
+    { id:'c-zone-sub',     key:'zone-sub'     },
+    { id:'c-dispo',        key:'dispo'        },
+    { id:'c-dispo-sub',    key:'dispo-sub'    },
   ];
   try {
     for (const f of fields) {
@@ -2011,10 +1948,7 @@ async function saveAllContacts() {
       if (inp && inp.value.trim()) await _upsertContact(f.key, inp.value);
     }
     showToast('Informations de contact sauvegardées ✅');
-  } catch(e) {
-    console.error('saveAllContacts error:', e);
-    showToast('Erreur sauvegarde : ' + e.message, 'error');
-  }
+  } catch(e) { showToast('Erreur sauvegarde : ' + e.message, 'error'); }
 }
 window.saveAllContacts = saveAllContacts;
 
@@ -2026,9 +1960,9 @@ async function blockDay() {
   const reason = document.getElementById('block-reason').value;
   if (!date) { showToast('Sélectionnez une date', 'error'); return; }
   try {
-    for (const slot of SLOTS) {
+    const slots = _siteCreneaux.length > 0 ? _siteCreneaux.map(c => c.label) : ['Journée entière'];
+    for (const slot of slots)
       await window._add(window._col(window._db, 'blocages'), { date, slot, type:'day', reason });
-    }
     showToast(`Journée du ${date} bloquée ✅`);
     await loadReservedDates();
   } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
@@ -2040,8 +1974,8 @@ async function unblockDay() {
   if (!date) { showToast('Sélectionnez une date', 'error'); return; }
   try {
     const snap = await window._docs(window._col(window._db, 'blocages'));
-    const toDelete = snap.docs.filter(d => d.data().date === date && !d.data()._deleted);
-    for (const d of toDelete) await window._del(window._doc(window._db, 'blocages', d.id));
+    for (const d of snap.docs.filter(d => d.data().date === date && !d.data()._deleted))
+      await window._del(window._doc(window._db, 'blocages', d.id));
     showToast(`Journée du ${date} débloquée ✅`);
     await loadReservedDates();
   } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
@@ -2066,9 +2000,9 @@ async function unblockSlot() {
   if (!date) { showToast('Sélectionnez une date', 'error'); return; }
   try {
     const snap = await window._docs(window._col(window._db, 'blocages'));
-    const toDelete = snap.docs.filter(d => d.data().date === date && d.data().slot === slot && !d.data()._deleted);
-    for (const d of toDelete) await window._del(window._doc(window._db, 'blocages', d.id));
-    showToast(`Créneau débloqué ✅`);
+    for (const d of snap.docs.filter(d => d.data().date === date && d.data().slot === slot && !d.data()._deleted))
+      await window._del(window._doc(window._db, 'blocages', d.id));
+    showToast('Créneau débloqué ✅');
     await loadReservedDates();
   } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
 }
@@ -2091,7 +2025,7 @@ function renderBlockedList() {
     entries.forEach(e => { if (!e._deleted) allEntries.push({ date, ...e }); });
   });
   if (allEntries.length === 0) {
-    list.innerHTML = '<p style="color:var(--text-light); font-size:0.88rem;">Aucun blocage pour l\'instant.</p>';
+    list.innerHTML = '<p style="color:var(--text-light);font-size:0.88rem;">Aucun blocage pour l\'instant.</p>';
     return;
   }
   allEntries.sort((a, b) => a.date.localeCompare(b.date));
@@ -2100,14 +2034,14 @@ function renderBlockedList() {
       <div>
         <strong>${e.date}</strong>
         <span class="slot-badge" style="margin-left:8px;">${e.slot}</span>
-        <span class="reason-badge" style="margin-left:4px;">${e.reason || 'Bloqué'}</span>
+        <span class="reason-badge" style="margin-left:4px;">${e.reason||'Bloqué'}</span>
       </div>
       <button class="btn-unblock" onclick="unblockEntry('${e.firestoreId}')">✕ Débloquer</button>
     </div>`).join('');
 }
 
 async function saveDispoChip() {
-  const val = document.getElementById('dispo-chip-text').value.trim();
+  const val  = document.getElementById('dispo-chip-text').value.trim();
   if (!val) { showToast('Texte vide', 'error'); return; }
   const chip = document.getElementById('dispo-chip-display');
   if (chip) chip.innerHTML = `<div class="dispo-dot"></div>${val}`;
@@ -2115,11 +2049,8 @@ async function saveDispoChip() {
     const snap = await window._docs(window._col(window._db, 'settings'));
     let existingId = null;
     snap.forEach(d => { if (d.data().key === 'dispo-chip') existingId = d.id; });
-    if (existingId) {
-      await window._upd(window._doc(window._db, 'settings', existingId), { value: val });
-    } else {
-      await window._add(window._col(window._db, 'settings'), { key: 'dispo-chip', value: val });
-    }
+    if (existingId) await window._upd(window._doc(window._db, 'settings', existingId), { value: val });
+    else            await window._add(window._col(window._db, 'settings'), { key:'dispo-chip', value: val });
     showToast('Message de disponibilité mis à jour ✅');
   } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
 }
@@ -2131,8 +2062,8 @@ window.saveDispoChip = saveDispoChip;
 function feedback(id, msg, ok) {
   const el = document.getElementById(id);
   el.style.display = 'block';
-  el.style.color = ok ? '#4A7C4A' : 'var(--rose-deep)';
-  el.textContent = msg;
+  el.style.color   = ok ? '#4A7C4A' : 'var(--rose-deep)';
+  el.textContent   = msg;
   setTimeout(() => { el.style.display = 'none'; }, 6000);
 }
 
@@ -2146,15 +2077,15 @@ async function changeEmail() {
     const cred = window._credential.credential(user.email, pwd);
     await window._reauth(user, cred);
     await window._updateEmail(user, newEmail);
-    feedback('email-feedback', 'Email mis à jour ! Reconnectez-vous avec le nouvel email.', true);
+    feedback('email-feedback', 'Email mis à jour !', true);
     document.getElementById('compte-pwd-for-email').value = '';
-    document.getElementById('compte-new-email').value = '';
+    document.getElementById('compte-new-email').value     = '';
   } catch(e) {
-    const msg = e.code === 'auth/wrong-password'           ? 'Mot de passe actuel incorrect.'
-              : e.code === 'auth/invalid-email'             ? 'Nouvel email invalide.'
-              : e.code === 'auth/requires-recent-login'     ? 'Session expirée, reconnectez-vous.'
-              : 'Erreur : ' + e.message;
-    feedback('email-feedback', msg, false);
+    feedback('email-feedback',
+      e.code === 'auth/wrong-password'       ? 'Mot de passe incorrect.'
+      : e.code === 'auth/invalid-email'      ? 'Email invalide.'
+      : e.code === 'auth/requires-recent-login' ? 'Session expirée, reconnectez-vous.'
+      : 'Erreur : ' + e.message, false);
   }
 }
 window.changeEmail = changeEmail;
@@ -2165,20 +2096,20 @@ async function changePassword() {
   const confirm = document.getElementById('compte-pwd-confirm').value;
   if (!current || !newPwd || !confirm) { feedback('pwd-feedback', 'Remplissez tous les champs.', false); return; }
   if (newPwd !== confirm) { feedback('pwd-feedback', 'Les mots de passe ne correspondent pas.', false); return; }
-  if (newPwd.length < 8)  { feedback('pwd-feedback', 'Au moins 8 caractères requis.', false); return; }
+  if (newPwd.length < 8)  { feedback('pwd-feedback', 'Au moins 8 caractères.', false); return; }
   const user = window._currentUser;
   if (!user) { feedback('pwd-feedback', 'Non connecté.', false); return; }
   try {
     const cred = window._credential.credential(user.email, current);
     await window._reauth(user, cred);
     await window._updatePwd(user, newPwd);
-    feedback('pwd-feedback', 'Mot de passe mis à jour avec succès !', true);
+    feedback('pwd-feedback', 'Mot de passe mis à jour !', true);
     ['compte-pwd-current','compte-pwd-new','compte-pwd-confirm'].forEach(id => { document.getElementById(id).value = ''; });
   } catch(e) {
-    const msg = e.code === 'auth/wrong-password'           ? 'Mot de passe actuel incorrect.'
-              : e.code === 'auth/requires-recent-login'     ? 'Session expirée, reconnectez-vous.'
-              : 'Erreur : ' + e.message;
-    feedback('pwd-feedback', msg, false);
+    feedback('pwd-feedback',
+      e.code === 'auth/wrong-password'          ? 'Mot de passe actuel incorrect.'
+      : e.code === 'auth/requires-recent-login' ? 'Session expirée, reconnectez-vous.'
+      : 'Erreur : ' + e.message, false);
   }
 }
 window.changePassword = changePassword;
@@ -2196,12 +2127,10 @@ let initInterval = setInterval(async () => {
       _loadTarifDocIds(),
       loadCAEntries(),
     ]);
-    // Appliquer les contacts sur le site
     try {
       const snap = await window._docs(window._col(window._db, 'contacts'));
       snap.forEach(d => applyContactToSite(d.data().key, d.data().value));
     } catch(e) {}
-    // Dispo chip
     try {
       const snap = await window._docs(window._col(window._db, 'settings'));
       snap.forEach(d => {
@@ -2215,11 +2144,11 @@ let initInterval = setInterval(async () => {
 }, 200);
 
 renderCalendar();
-// Ouvrir admin auto si paramètre URL
+
 if (new URLSearchParams(window.location.search).get('admin') === '1') {
   window.addEventListener('load', () => setTimeout(openAdmin, 800));
 }
-// Fermer l'admin avec Échap ou clic sur le fond
+
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAdmin(); });
 document.getElementById('adminOverlay').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeAdmin();
@@ -2227,7 +2156,6 @@ document.getElementById('adminOverlay').addEventListener('click', e => {
 
 let _logoClickCount = 0;
 let _logoClickTimer = null;
-
 function handleLogoClick() {
   _logoClickCount++;
   clearTimeout(_logoClickTimer);
@@ -2238,8 +2166,6 @@ function handleLogoClick() {
   }
 }
 window.handleLogoClick = handleLogoClick;
-
-
 </script>
 </body>
 </html>
