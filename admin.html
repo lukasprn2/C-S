@@ -59,10 +59,7 @@
       width: var(--sidebar); height: 100vh; background: var(--dark);
       display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto;
     }
-    .sidebar-logo {
-      padding: 1.5rem 1.2rem 1rem;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-    }
+    .sidebar-logo { padding: 1.5rem 1.2rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
     .sidebar-logo img { width: 100%; max-width: 140px; display: block; margin: 0 auto; }
     .sidebar-title { font-family: 'Playfair Display', serif; color: var(--white); font-size: 1rem; text-align: center; margin-top: 0.6rem; }
     .sidebar-title span { color: var(--rose); font-style: italic; }
@@ -148,7 +145,7 @@
     .agenda-week { display: grid; grid-template-columns: 70px repeat(7, 1fr); border: 1px solid rgba(45,31,31,0.1); border-radius: 16px; overflow: hidden; background: var(--white); }
     .agenda-header { background: var(--dark); color: white; padding: 10px 6px; text-align: center; font-size: 0.75rem; font-weight: 600; }
     .agenda-hour { background: var(--cream); padding: 8px 10px 8px 0; text-align: right; font-size: 0.7rem; color: var(--text-light); border-bottom: 1px solid rgba(45,31,31,0.05); }
-   .agenda-cell { background: var(--white); border-bottom: 1px solid rgba(45,31,31,0.05); border-left: 1px solid rgba(45,31,31,0.05); min-height: 40px; height: 40px; position: relative; }
+    .agenda-cell { background: var(--white); border-bottom: 1px solid rgba(45,31,31,0.05); border-left: 1px solid rgba(45,31,31,0.05); min-height: 40px; height: 40px; position: relative; }
     .agenda-event { position: absolute; left: 2px; right: 2px; border-radius: 6px; padding: 2px 6px; font-size: 0.68rem; font-weight: 600; overflow: hidden; cursor: pointer; }
     .agenda-event.confirmed { background: var(--sage-light); color: var(--sage); border-left: 3px solid var(--sage); }
 
@@ -181,6 +178,22 @@
     .slot-badge { font-size: 0.72rem; background: var(--rose-light); color: var(--rose-deep); padding: 2px 8px; border-radius: 50px; }
     .btn-unblock { background: none; border: 1px solid var(--rose-deep); color: var(--rose-deep); border-radius: 6px; padding: 3px 10px; font-size: 0.75rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
     .btn-unblock:hover { background: var(--rose-deep); color: white; }
+    .jour-toggle {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      background: var(--cream); border-radius: 12px; padding: 10px 6px;
+      cursor: pointer; border: 2px solid transparent; transition: all 0.2s;
+      font-size: 0.78rem; font-weight: 600; color: var(--text-mid);
+    }
+    .jour-toggle.actif { background: var(--rose-light); border-color: var(--rose-deep); color: var(--rose-deep); }
+    .jour-toggle .jour-emoji { font-size: 1.3rem; }
+    .creneau-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--cream); border-radius: 10px; padding: 10px 14px;
+      margin-bottom: 8px; font-size: 0.88rem; color: var(--dark-mid);
+      border: 1.5px solid rgba(45,31,31,0.07);
+    }
+    .creneau-item .creneau-label { font-weight: 600; color: var(--dark); }
+    .creneau-item .creneau-time { font-size: 0.8rem; color: var(--text-mid); }
 
     /* ── CA ── */
     .ca-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
@@ -225,25 +238,6 @@
       .sidebar { display: none; }
       .stats-grid, .ca-summary { grid-template-columns: 1fr; }
     }
-    .jour-toggle {
-  display:flex;flex-direction:column;align-items:center;gap:6px;
-  background:var(--cream);border-radius:12px;padding:10px 6px;
-  cursor:pointer;border:2px solid transparent;transition:all 0.2s;
-  font-size:0.78rem;font-weight:600;color:var(--text-mid);
-}
-.jour-toggle.actif {
-  background:var(--rose-light);border-color:var(--rose-deep);color:var(--rose-deep);
-}
-.jour-toggle .jour-emoji { font-size:1.3rem; }
-
-.creneau-item {
-  display:flex;align-items:center;justify-content:space-between;
-  background:var(--cream);border-radius:10px;padding:10px 14px;
-  margin-bottom:8px;font-size:0.88rem;color:var(--dark-mid);
-  border:1.5px solid rgba(45,31,31,0.07);
-}
-.creneau-item .creneau-label { font-weight:600;color:var(--dark); }
-.creneau-item .creneau-time { font-size:0.8rem;color:var(--text-mid); }
   </style>
 </head>
 <body>
@@ -410,80 +404,72 @@
         <div class="tarifs-grid" id="adminTarifsForm"></div>
       </div>
 
-   <!-- ── PANEL DISPOS ── -->
-<div class="panel" id="panel-dispos">
+      <!-- ── PANEL DISPOS ── -->
+      <div class="panel" id="panel-dispos">
 
-  <!-- Message chip -->
-  <div class="dispo-block">
-    <div class="dispo-block-title">💬 Message affiché sur le site</div>
-    <div class="dispo-row">
-      <input class="dispo-input" id="dispo-chip-text" placeholder="Ex : Disponible ce weekend !">
-      <button class="btn-save" onclick="saveDispoChip()">Sauver</button>
-    </div>
-  </div>
+        <div class="dispo-block">
+          <div class="dispo-block-title">💬 Message affiché sur le site</div>
+          <div class="dispo-row">
+            <input class="dispo-input" id="dispo-chip-text" placeholder="Ex : Disponible ce weekend !">
+            <button class="btn-save" onclick="saveDispoChip()">Sauver</button>
+          </div>
+        </div>
 
-  <!-- Jours actifs -->
-  <div class="dispo-block">
-    <div class="dispo-block-title">📅 Jours où tu travailles</div>
-    <div id="jours-actifs-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:1rem;"></div>
-    <button class="btn-save" onclick="saveJoursActifs()">💾 Sauvegarder les jours</button>
-  </div>
+        <div class="dispo-block">
+          <div class="dispo-block-title">📅 Jours où tu travailles</div>
+          <div id="jours-actifs-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:1rem;"></div>
+          <button class="btn-save" onclick="saveJoursActifs()">💾 Sauvegarder les jours</button>
+        </div>
 
-  <!-- Créneaux personnalisés -->
-  <div class="dispo-block">
-    <div class="dispo-block-title">⏰ Créneaux horaires proposés</div>
-    <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:1rem;">Ces créneaux apparaissent quand un client choisit une date disponible.</p>
+        <div class="dispo-block">
+          <div class="dispo-block-title">⏰ Créneaux horaires proposés</div>
+          <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:1rem;">Ces créneaux apparaissent quand un client choisit une date disponible.</p>
+          <div id="creneaux-list" style="margin-bottom:1rem;"></div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--cream);padding:12px;border-radius:12px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <label style="font-size:0.78rem;font-weight:600;color:var(--dark);">De</label>
+              <input type="time" id="new-slot-start" class="dispo-input" style="width:110px;" value="18:30">
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <label style="font-size:0.78rem;font-weight:600;color:var(--dark);">À</label>
+              <input type="time" id="new-slot-end" class="dispo-input" style="width:110px;" value="22:00">
+            </div>
+            <input class="dispo-input" id="new-slot-label" placeholder="Nom (ex: Soir)" style="flex:1;min-width:120px;">
+            <button class="btn-save" onclick="addCreneau()">+ Ajouter</button>
+          </div>
+        </div>
 
-    <div id="creneaux-list" style="margin-bottom:1rem;"></div>
+        <div class="dispo-block">
+          <div class="dispo-block-title">🚫 Bloquer une journée entière</div>
+          <div class="dispo-row">
+            <input type="date" id="block-date" class="dispo-input">
+            <select id="block-reason" class="dispo-input">
+              <option value="Indisponible">Indisponible</option>
+              <option value="Congé">Congé</option>
+              <option value="Férié">Jour férié</option>
+              <option value="Personnel">Personnel</option>
+            </select>
+            <button class="btn-save" onclick="blockDay()">Bloquer</button>
+            <button class="btn-save" onclick="unblockDay()" style="background:var(--sage);">Débloquer</button>
+          </div>
+        </div>
 
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--cream);padding:12px;border-radius:12px;">
-      <div style="display:flex;align-items:center;gap:6px;">
-        <label style="font-size:0.78rem;font-weight:600;color:var(--dark);">De</label>
-        <input type="time" id="new-slot-start" class="dispo-input" style="width:110px;" value="18:30">
+        <div class="dispo-block">
+          <div class="dispo-block-title">⛔ Bloquer un créneau spécifique</div>
+          <div class="dispo-row">
+            <input type="date" id="block-slot-date" class="dispo-input">
+            <select id="block-slot-time" class="dispo-input"></select>
+            <button class="btn-save" onclick="blockSlot()">Bloquer</button>
+            <button class="btn-save" onclick="unblockSlot()" style="background:var(--sage);">Débloquer</button>
+          </div>
+        </div>
+
+        <div class="dispo-block">
+          <div class="dispo-block-title">📋 Jours et créneaux bloqués</div>
+          <div id="blockedList"><p style="color:var(--text-light);font-size:0.88rem;">Aucun blocage.</p></div>
+        </div>
+
       </div>
-      <div style="display:flex;align-items:center;gap:6px;">
-        <label style="font-size:0.78rem;font-weight:600;color:var(--dark);">À</label>
-        <input type="time" id="new-slot-end" class="dispo-input" style="width:110px;" value="22:00">
-      </div>
-      <input class="dispo-input" id="new-slot-label" placeholder="Nom (ex: Soir)" style="flex:1;min-width:120px;">
-      <button class="btn-save" onclick="addCreneau()">+ Ajouter</button>
-    </div>
-  </div>
-
-  <!-- Blocage journée -->
-  <div class="dispo-block">
-    <div class="dispo-block-title">🚫 Bloquer une journée entière</div>
-    <div class="dispo-row">
-      <input type="date" id="block-date" class="dispo-input">
-      <select id="block-reason" class="dispo-input">
-        <option value="Indisponible">Indisponible</option>
-        <option value="Congé">Congé</option>
-        <option value="Férié">Jour férié</option>
-        <option value="Personnel">Personnel</option>
-      </select>
-      <button class="btn-save" onclick="blockDay()">Bloquer</button>
-      <button class="btn-save" onclick="unblockDay()" style="background:var(--sage);">Débloquer</button>
-    </div>
-  </div>
-
-  <!-- Blocage créneau -->
-  <div class="dispo-block">
-    <div class="dispo-block-title">⛔ Bloquer un créneau spécifique</div>
-    <div class="dispo-row">
-      <input type="date" id="block-slot-date" class="dispo-input">
-      <select id="block-slot-time" class="dispo-input" id="block-slot-select"></select>
-      <button class="btn-save" onclick="blockSlot()">Bloquer</button>
-      <button class="btn-save" onclick="unblockSlot()" style="background:var(--sage);">Débloquer</button>
-    </div>
-  </div>
-
-  <!-- Liste des blocages -->
-  <div class="dispo-block">
-    <div class="dispo-block-title">📋 Jours et créneaux bloqués</div>
-    <div id="blockedList"><p style="color:var(--text-light);font-size:0.88rem;">Aucun blocage.</p></div>
-  </div>
-
-</div>
 
       <!-- ── PANEL CONTACTS ── -->
       <div class="panel" id="panel-contacts">
@@ -600,6 +586,7 @@
 
 <!-- ══════════════ APP JS ══════════════ -->
 <script>
+
 // ── TOAST ──
 function showToast(msg, type='success') {
   const t = document.getElementById('toast');
@@ -611,14 +598,14 @@ function showToast(msg, type='success') {
 
 // ── NAVIGATION ──
 const PANEL_META = {
-  reservations: { title: 'Réservations',      sub: 'Gérez vos demandes de garde'         },
-  agenda:       { title: 'Agenda',             sub: 'Vue hebdomadaire de vos gardes'      },
-  messages:     { title: 'Messages',           sub: 'Messages reçus via le site'          },
-  ca:           { title: 'Chiffre d\'affaires',sub: 'Suivez vos revenus'                  },
-  tarifs:       { title: 'Tarifs',             sub: 'Modifiez les prix affichés sur le site' },
-  dispos:       { title: 'Disponibilités',     sub: 'Bloquez des jours ou créneaux'       },
-  contacts:     { title: 'Infos contact',      sub: 'Informations affichées sur le site'  },
-  compte:       { title: 'Mon compte',         sub: 'Modifiez vos identifiants'           },
+  reservations: { title: 'Réservations',       sub: 'Gérez vos demandes de garde'            },
+  agenda:       { title: 'Agenda',              sub: 'Vue hebdomadaire de vos gardes'         },
+  messages:     { title: 'Messages',            sub: 'Messages reçus via le site'             },
+  ca:           { title: "Chiffre d'affaires",  sub: 'Suivez vos revenus'                     },
+  tarifs:       { title: 'Tarifs',              sub: 'Modifiez les prix affichés sur le site' },
+  dispos:       { title: 'Disponibilités',      sub: 'Bloquez des jours ou créneaux'          },
+  contacts:     { title: 'Infos contact',       sub: 'Informations affichées sur le site'     },
+  compte:       { title: 'Mon compte',          sub: 'Modifiez vos identifiants'              },
 };
 
 function switchPanel(name, el) {
@@ -656,14 +643,15 @@ window.adminLogin = adminLogin;
 function adminLogout() { window._signOut(window._auth); }
 window.adminLogout = adminLogout;
 
-// ── LOAD ALL ──
-let _allRes    = [];
+// ── GLOBAL STATE ──
+let _allRes        = [];
 let _currentFilter = 'all';
-let _blockedDates  = {};
-let _caEntries = [];
+let _blockedDates  = {};   // { date: [{firestoreId, slot, reason, ...}] }
+let _caEntries     = [];
+let _creneaux      = [];   // [{firestoreId?, id, label, start, end}]
+let _joursActifs   = [false,false,false,false,false,true,true]; // Lun–Dim, défaut Sam+Dim
 const _tarifDocIds   = {};
 const _contactDocIds = {};
-
 
 async function loadAllData() {
   if (!window._fbReady) return;
@@ -674,7 +662,6 @@ async function loadAllData() {
     loadContacts(),
     loadDispos(),
     loadCAEntries(),
-    loadSettings(),
   ]);
 }
 window.loadAllData = loadAllData;
@@ -685,13 +672,11 @@ async function loadReservations() {
     const snap = await window._docs(window._col(window._db, 'reservations'));
     _allRes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     _allRes.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-
     const ym = new Date().toISOString().slice(0, 7);
     document.getElementById('statTotal').textContent     = _allRes.length;
     document.getElementById('statPending').textContent   = _allRes.filter(r => r.status === 'pending').length;
     document.getElementById('statConfirmed').textContent = _allRes.filter(r => r.status === 'confirmed').length;
     document.getElementById('statMonth').textContent     = _allRes.filter(r => r.date && r.date.startsWith(ym)).length;
-
     renderReservationsList(_currentFilter);
   } catch(e) { console.error('loadReservations:', e); }
 }
@@ -720,8 +705,8 @@ function renderReservationsList(filter) {
         ${r.status === 'pending' ? '⏳ En attente' : r.status === 'confirmed' ? '✅ Confirmée' : '❌ Annulée'}
       </span>
       <div class="res-actions">
-        ${r.status === 'pending'    ? `<button class="res-btn confirm" onclick="updateRes('${r.id}','confirmed','${rEnc}')">✅ Confirmer</button>` : ''}
-        ${r.status !== 'cancelled'  ? `<button class="res-btn cancel"  onclick="updateRes('${r.id}','cancelled',null)">✕ Annuler</button>` : ''}
+        ${r.status === 'pending'   ? `<button class="res-btn confirm" onclick="updateRes('${r.id}','confirmed','${rEnc}')">✅ Confirmer</button>` : ''}
+        ${r.status !== 'cancelled' ? `<button class="res-btn cancel"  onclick="updateRes('${r.id}','cancelled',null)">✕ Annuler</button>` : ''}
         <button class="res-btn delete" onclick="deleteRes('${r.id}')">🗑️</button>
       </div>`;
     list.appendChild(el);
@@ -818,7 +803,9 @@ function getWeekStart(offset) {
 function agendaNext()  { agendaWeekOffset++; renderAgenda(); }
 function agendaPrev()  { agendaWeekOffset--; renderAgenda(); }
 function agendaToday() { agendaWeekOffset = 0; renderAgenda(); }
-window.agendaNext = agendaNext; window.agendaPrev = agendaPrev; window.agendaToday = agendaToday;
+window.agendaNext = agendaNext;
+window.agendaPrev = agendaPrev;
+window.agendaToday = agendaToday;
 
 function renderAgenda() {
   const ws = getWeekStart(agendaWeekOffset);
@@ -842,40 +829,47 @@ function renderAgenda() {
     const isToday = d.toDateString() === new Date().toDateString();
     html += `<div class="agenda-header" style="${isToday ? 'background:var(--rose-deep);' : ''}">${DAY_NAMES[i]} ${d.getDate()}</div>`;
   });
+
   DISPLAY_HOURS.forEach(h => {
     html += `<div class="agenda-hour">${h}:00</div>`;
     days.forEach(d => {
       const ds = d.toISOString().slice(0, 10);
       let cell = '';
-     (weekRes[ds] || []).forEach(r => {
-  // Trouver le créneau correspondant dans _creneaux
-  const cren = _creneaux.find(c => c.label === r.slot);
-  if (cren) {
-    const startH = parseInt(cren.start.split(':')[0]);
-    const startM = parseInt(cren.start.split(':')[1]);
-    if (startH === h) {
-      const endH = parseInt(cren.end.split(':')[0]);
-      const dureeH = endH > startH ? endH - startH : (24 - startH + endH);
-      cell += `<div class="agenda-event confirmed" 
-        style="top:${startM > 0 ? (startM/60)*40 : 0}px; height:${dureeH * 40}px;"
-        title="${r.prenom} ${r.nom} · ${r.typeGarde}">
-        ${r.prenom} ${r.nom.charAt(0)}.<br>
-        <small>${cren.start}–${cren.end}</small>
-      </div>`;
-    }
-  } else if (r.slot && r.slot.includes('–')) {
-    // Fallback pour anciens créneaux encore en base
-    const parts = r.slot.split('–');
-    const startH = parseInt(parts[0]);
-    if (startH === h) {
-      cell += `<div class="agenda-event confirmed"
-        title="${r.prenom} ${r.nom} · ${r.typeGarde}">
-        ${r.prenom} ${r.nom.charAt(0)}.<br>
-        <small>${r.slot}</small>
-      </div>`;
-    }
-  }
-});
+      (weekRes[ds] || []).forEach(r => {
+        // Trouver le créneau correspondant dans _creneaux
+        const cren = _creneaux.find(c => c.label === r.slot);
+        if (cren) {
+          const startH = parseInt(cren.start.split(':')[0]);
+          const startM = parseInt(cren.start.split(':')[1] || 0);
+          if (startH === h) {
+            const endH = parseInt(cren.end.split(':')[0]);
+            const dureeH = endH > startH ? endH - startH : (24 - startH + endH);
+            cell += `<div class="agenda-event confirmed"
+              style="top:${startM > 0 ? (startM/60)*40 : 0}px; height:${Math.max(dureeH * 40, 20)}px;"
+              title="${r.prenom} ${r.nom} · ${r.typeGarde}">
+              ${r.prenom} ${r.nom.charAt(0)}.<br>
+              <small>${cren.start}–${cren.end}</small>
+            </div>`;
+          }
+        } else if (r.slot) {
+          // Fallback pour anciens créneaux format "HH:00–HH:00"
+          const parts = r.slot.split('–');
+          if (parts.length === 2) {
+            const startH2 = parseInt(parts[0]);
+            if (startH2 === h) {
+              cell += `<div class="agenda-event confirmed"
+                title="${r.prenom} ${r.nom} · ${r.typeGarde}">
+                ${r.prenom} ${r.nom.charAt(0)}.<br>
+                <small>${r.slot}</small>
+              </div>`;
+            }
+          }
+        }
+      });
+      html += `<div class="agenda-cell">${cell}</div>`;
+    });
+  });
+
   html += '</div>';
   document.getElementById('agendaContainer').innerHTML = html;
 }
@@ -961,10 +955,10 @@ async function _upsertContact(key, value) {
 
 async function saveAllContacts() {
   const fields = [
-    { id:'c-tel',key:'tel' },{ id:'c-tel-hours',key:'tel-hours' },
-    { id:'c-email-public',key:'email-public' },{ id:'c-zone',key:'zone' },
-    { id:'c-zone-sub',key:'zone-sub' },{ id:'c-dispo',key:'dispo' },
-    { id:'c-dispo-sub',key:'dispo-sub' },
+    { id:'c-tel', key:'tel' }, { id:'c-tel-hours', key:'tel-hours' },
+    { id:'c-email-public', key:'email-public' }, { id:'c-zone', key:'zone' },
+    { id:'c-zone-sub', key:'zone-sub' }, { id:'c-dispo', key:'dispo' },
+    { id:'c-dispo-sub', key:'dispo-sub' },
   ];
   try {
     for (const f of fields) {
@@ -978,15 +972,10 @@ window.saveAllContacts = saveAllContacts;
 
 // ── DISPOS ──
 const JOURS_NOMS = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-const JOURS_EMOJI = ['😐','😐','😐','😐','😐','🎉','🌟'];
-// Par défaut : Sam(5) et Dim(6) actifs + soirées en semaine
-let _joursActifs = [false,false,false,false,false,true,true]; // index 0=Lun
-let _creneaux = []; // [{id, label, start, end}]
-let _blockedDates = {};
 
 async function loadDispos() {
   try {
-    // Charger jours actifs
+    // Charger settings (dispo-chip + jours-actifs)
     const snapS = await window._docs(window._col(window._db, 'settings'));
     snapS.forEach(d => {
       if (d.data().key === 'jours-actifs') {
@@ -1004,11 +993,11 @@ async function loadDispos() {
     if (_creneaux.length === 0) {
       // Créneaux par défaut si rien en base
       _creneaux = [
-        { id: 'soir-semaine', label: 'Soir semaine', start: '18:30', end: '22:00' },
-        { id: 'matin-we', label: 'Matin weekend', start: '08:00', end: '12:00' },
-        { id: 'aprem-we', label: 'Après-midi weekend', start: '13:00', end: '18:00' },
-        { id: 'soir-we', label: 'Soir weekend', start: '18:30', end: '22:30' },
-        { id: 'nuit', label: 'Garde de nuit', start: '20:00', end: '08:00' },
+        { id: 'soir-semaine',  label: 'Soir semaine',        start: '18:30', end: '22:00' },
+        { id: 'matin-we',      label: 'Matin weekend',       start: '08:00', end: '12:00' },
+        { id: 'aprem-we',      label: 'Après-midi weekend',  start: '13:00', end: '18:00' },
+        { id: 'soir-we',       label: 'Soir weekend',        start: '18:30', end: '22:30' },
+        { id: 'nuit',          label: 'Garde de nuit',       start: '20:00', end: '08:00' },
       ];
     }
 
@@ -1037,10 +1026,7 @@ function renderJoursActifs() {
     const div = document.createElement('div');
     div.className = 'jour-toggle' + (_joursActifs[i] ? ' actif' : '');
     div.innerHTML = `<span class="jour-emoji">${_joursActifs[i] ? (i >= 5 ? '🎉' : '✅') : '😴'}</span>${nom}`;
-    div.onclick = () => {
-      _joursActifs[i] = !_joursActifs[i];
-      renderJoursActifs();
-    };
+    div.onclick = () => { _joursActifs[i] = !_joursActifs[i]; renderJoursActifs(); };
     grid.appendChild(div);
   });
 }
@@ -1059,6 +1045,7 @@ async function saveJoursActifs() {
     showToast('Jours de travail sauvegardés ✅');
   } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
 }
+window.saveJoursActifs = saveJoursActifs;
 
 function renderCreneaux() {
   const list = document.getElementById('creneaux-list');
@@ -1080,7 +1067,7 @@ function renderCreneaux() {
 
 async function addCreneau() {
   const start = document.getElementById('new-slot-start').value;
-  const end = document.getElementById('new-slot-end').value;
+  const end   = document.getElementById('new-slot-end').value;
   const label = document.getElementById('new-slot-label').value.trim() || `${start}–${end}`;
   if (!start || !end) { showToast('Remplis les heures', 'error'); return; }
   const newC = { label, start, end, id: 'c-' + Date.now() };
@@ -1092,6 +1079,7 @@ async function addCreneau() {
     showToast('Créneau ajouté ✅');
   } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
 }
+window.addCreneau = addCreneau;
 
 async function deleteCreneau(i) {
   const c = _creneaux[i];
@@ -1108,7 +1096,9 @@ window.deleteCreneau = deleteCreneau;
 function refreshSlotSelect() {
   const sel = document.getElementById('block-slot-time');
   if (!sel) return;
-  sel.innerHTML = _creneaux.map(c => `<option value="${c.label}">${c.label} (${c.start}–${c.end})</option>`).join('');
+  sel.innerHTML = _creneaux.map(c =>
+    `<option value="${c.label}">${c.label} (${c.start}–${c.end})</option>`
+  ).join('');
 }
 
 function renderBlockedList() {
@@ -1118,78 +1108,20 @@ function renderBlockedList() {
   Object.entries(_blockedDates).forEach(([date, entries]) => {
     entries.forEach(e => { if (!e._deleted) all.push({ date, ...e }); });
   });
-  if (all.length === 0) { list.innerHTML = '<p style="color:var(--text-light);font-size:0.88rem;">Aucun blocage.</p>'; return; }
+  if (all.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-light);font-size:0.88rem;">Aucun blocage.</p>';
+    return;
+  }
   all.sort((a, b) => a.date.localeCompare(b.date));
   list.innerHTML = all.map(e => `
     <div class="blocked-item">
-      <div><strong>${e.date}</strong>
+      <div>
+        <strong>${e.date}</strong>
         <span class="slot-badge" style="margin-left:8px;">${e.slot}</span>
         <span class="reason-badge" style="margin-left:4px;">${e.reason || 'Bloqué'}</span>
       </div>
       <button class="btn-unblock" onclick="unblockEntry('${e.firestoreId}')">✕</button>
     </div>`).join('');
-}
-
-async function blockDay() {
-  const date = document.getElementById('block-date').value;
-  const reason = document.getElementById('block-reason').value;
-  if (!date) { showToast('Sélectionnez une date', 'error'); return; }
-  try {
-    const slots = _creneaux.length > 0 ? _creneaux.map(c => c.label) : ['Journée entière'];
-    for (const slot of slots)
-      await window._add(window._col(window._db, 'blocages'), { date, slot, type:'day', reason });
-    showToast(`${date} bloqué ✅`); await loadDispos();
-  } catch(e) { showToast('Erreur', 'error'); }
-}
-async function unblockDay() {
-  const date = document.getElementById('block-date').value;
-  if (!date) { showToast('Sélectionnez une date', 'error'); return; }
-  try {
-    const snap = await window._docs(window._col(window._db, 'blocages'));
-    for (const d of snap.docs.filter(d => d.data().date === date && !d.data()._deleted))
-      await window._del(window._doc(window._db, 'blocages', d.id));
-    showToast(`${date} débloqué ✅`); await loadDispos();
-  } catch(e) { showToast('Erreur', 'error'); }
-}
-async function blockSlot() {
-  const date = document.getElementById('block-slot-date').value;
-  const slot = document.getElementById('block-slot-time').value;
-  if (!date) { showToast('Sélectionnez une date', 'error'); return; }
-  try {
-    await window._add(window._col(window._db, 'blocages'), { date, slot, type:'slot', reason:'Indisponible' });
-    showToast(`Créneau bloqué ✅`); await loadDispos();
-  } catch(e) { showToast('Erreur', 'error'); }
-}
-async function unblockSlot() {
-  const date = document.getElementById('block-slot-date').value;
-  const slot = document.getElementById('block-slot-time').value;
-  if (!date) { showToast('Sélectionnez une date', 'error'); return; }
-  try {
-    const snap = await window._docs(window._col(window._db, 'blocages'));
-    for (const d of snap.docs.filter(d => d.data().date === date && d.data().slot === slot))
-      await window._del(window._doc(window._db, 'blocages', d.id));
-    showToast('Créneau débloqué ✅'); await loadDispos();
-  } catch(e) { showToast('Erreur', 'error'); }
-}
-async function unblockEntry(id) {
-  try {
-    await window._del(window._doc(window._db, 'blocages', id));
-    showToast('Supprimé ✅'); await loadDispos();
-  } catch(e) { showToast('Erreur', 'error'); }
-}
-window.blockDay = blockDay; window.unblockDay = unblockDay;
-window.blockSlot = blockSlot; window.unblockSlot = unblockSlot;
-window.unblockEntry = unblockEntry;// ── SETTINGS (dispo chip) ──
-async function loadSettings() {
-  try {
-    const snap = await window._docs(window._col(window._db, 'settings'));
-    snap.forEach(d => {
-      if (d.data().key === 'dispo-chip') {
-        const inp = document.getElementById('dispo-chip-text');
-        if (inp) inp.value = d.data().value || '';
-      }
-    });
-  } catch(e) {}
 }
 
 async function saveDispoChip() {
@@ -1199,12 +1131,75 @@ async function saveDispoChip() {
     const snap = await window._docs(window._col(window._db, 'settings'));
     let existingId = null;
     snap.forEach(d => { if (d.data().key === 'dispo-chip') existingId = d.id; });
-    if (existingId) await window._upd(window._doc(window._db, 'settings', existingId), { value: val });
-    else await window._add(window._col(window._db, 'settings'), { key: 'dispo-chip', value: val });
+    if (existingId) {
+      await window._upd(window._doc(window._db, 'settings', existingId), { value: val });
+    } else {
+      await window._add(window._col(window._db, 'settings'), { key: 'dispo-chip', value: val });
+    }
     showToast('Message de disponibilité mis à jour ✅');
   } catch(e) { showToast('Erreur : ' + e.message, 'error'); }
 }
 window.saveDispoChip = saveDispoChip;
+
+async function blockDay() {
+  const date   = document.getElementById('block-date').value;
+  const reason = document.getElementById('block-reason').value;
+  if (!date) { showToast('Sélectionnez une date', 'error'); return; }
+  try {
+    const slots = _creneaux.length > 0 ? _creneaux.map(c => c.label) : ['Journée entière'];
+    for (const slot of slots)
+      await window._add(window._col(window._db, 'blocages'), { date, slot, type:'day', reason });
+    showToast(`${date} bloqué ✅`);
+    await loadDispos();
+  } catch(e) { showToast('Erreur', 'error'); }
+}
+
+async function unblockDay() {
+  const date = document.getElementById('block-date').value;
+  if (!date) { showToast('Sélectionnez une date', 'error'); return; }
+  try {
+    const snap = await window._docs(window._col(window._db, 'blocages'));
+    for (const d of snap.docs.filter(d => d.data().date === date && !d.data()._deleted))
+      await window._del(window._doc(window._db, 'blocages', d.id));
+    showToast(`${date} débloqué ✅`);
+    await loadDispos();
+  } catch(e) { showToast('Erreur', 'error'); }
+}
+
+async function blockSlot() {
+  const date = document.getElementById('block-slot-date').value;
+  const slot = document.getElementById('block-slot-time').value;
+  if (!date) { showToast('Sélectionnez une date', 'error'); return; }
+  try {
+    await window._add(window._col(window._db, 'blocages'), { date, slot, type:'slot', reason:'Indisponible' });
+    showToast('Créneau bloqué ✅');
+    await loadDispos();
+  } catch(e) { showToast('Erreur', 'error'); }
+}
+
+async function unblockSlot() {
+  const date = document.getElementById('block-slot-date').value;
+  const slot = document.getElementById('block-slot-time').value;
+  if (!date) { showToast('Sélectionnez une date', 'error'); return; }
+  try {
+    const snap = await window._docs(window._col(window._db, 'blocages'));
+    for (const d of snap.docs.filter(d => d.data().date === date && d.data().slot === slot))
+      await window._del(window._doc(window._db, 'blocages', d.id));
+    showToast('Créneau débloqué ✅');
+    await loadDispos();
+  } catch(e) { showToast('Erreur', 'error'); }
+}
+
+async function unblockEntry(id) {
+  try {
+    await window._del(window._doc(window._db, 'blocages', id));
+    showToast('Supprimé ✅');
+    await loadDispos();
+  } catch(e) { showToast('Erreur', 'error'); }
+}
+window.blockDay = blockDay; window.unblockDay = unblockDay;
+window.blockSlot = blockSlot; window.unblockSlot = unblockSlot;
+window.unblockEntry = unblockEntry;
 
 // ── CA ──
 async function loadCAEntries() {
@@ -1233,28 +1228,37 @@ async function saveCAEntry() {
     showToast('Entrée ajoutée ✅');
     document.getElementById('addCAForm').style.display = 'none';
     document.getElementById('ca-montant').value = '';
-    document.getElementById('ca-note').value = '';
-    await loadCAEntries(); renderCA();
+    document.getElementById('ca-note').value    = '';
+    await loadCAEntries();
+    renderCA();
   } catch(e) { showToast('Erreur', 'error'); }
 }
 window.saveCAEntry = saveCAEntry;
 
 async function deleteCAEntry(id) {
   if (!confirm('Supprimer ?')) return;
-  try { await window._del(window._doc(window._db, 'ca', id)); showToast('Supprimé'); await loadCAEntries(); renderCA(); } catch(e) {}
+  try {
+    await window._del(window._doc(window._db, 'ca', id));
+    showToast('Supprimé');
+    await loadCAEntries();
+    renderCA();
+  } catch(e) {}
 }
 window.deleteCAEntry = deleteCAEntry;
 
 function renderCA() {
-  const now2 = new Date(); const ym = now2.toISOString().slice(0, 7); const y = now2.getFullYear().toString();
+  const now2   = new Date();
+  const ym     = now2.toISOString().slice(0, 7);
+  const y      = now2.getFullYear().toString();
   const byMonth = _caEntries.filter(e => e.date && e.date.startsWith(ym));
   const byYear  = _caEntries.filter(e => e.date && e.date.startsWith(y));
   const sum = arr => arr.reduce((s, e) => s + (e.montant || 0), 0);
-  document.getElementById('ca-mois').textContent    = sum(byMonth).toFixed(2) + ' €';
-  document.getElementById('ca-mois-nb').textContent = byMonth.length + ' prestation(s)';
-  document.getElementById('ca-annee').textContent   = sum(byYear).toFixed(2) + ' €';
+
+  document.getElementById('ca-mois').textContent     = sum(byMonth).toFixed(2) + ' €';
+  document.getElementById('ca-mois-nb').textContent  = byMonth.length + ' prestation(s)';
+  document.getElementById('ca-annee').textContent    = sum(byYear).toFixed(2) + ' €';
   document.getElementById('ca-annee-nb').textContent = byYear.length + ' prestation(s)';
-  document.getElementById('ca-total').textContent   = sum(_caEntries).toFixed(2) + ' €';
+  document.getElementById('ca-total').textContent    = sum(_caEntries).toFixed(2) + ' €';
   document.getElementById('ca-total-nb').textContent = _caEntries.length + ' entrée(s)';
 
   const months = ['Jan','Fév','Mar','Avr','Mai','Jui','Jul','Aoû','Sep','Oct','Nov','Déc'];
@@ -1270,10 +1274,14 @@ function renderCA() {
   }).join('');
 
   const tbody = document.getElementById('ca-table-body');
-  if (_caEntries.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-light);">Aucune entrée.</td></tr>'; return; }
+  if (_caEntries.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-light);">Aucune entrée.</td></tr>';
+    return;
+  }
   tbody.innerHTML = _caEntries.map(e => `
     <tr>
-      <td>${e.date || '—'}</td><td>${e.type || '—'}</td>
+      <td>${e.date || '—'}</td>
+      <td>${e.type || '—'}</td>
       <td style="color:var(--text-mid);font-size:0.85rem;">${e.note || '—'}</td>
       <td class="amount">${(e.montant||0).toFixed(2)} €</td>
       <td><button onclick="deleteCAEntry('${e.id}')" style="background:none;border:none;cursor:pointer;opacity:0.5;">🗑️</button></td>
@@ -1283,19 +1291,22 @@ function renderCA() {
 // ── COMPTE ──
 function feedback(id, msg, ok) {
   const el = document.getElementById(id);
-  el.style.display = 'block'; el.style.color = ok ? '#4A7C4A' : 'var(--rose-deep)'; el.textContent = msg;
+  el.style.display = 'block';
+  el.style.color   = ok ? '#4A7C4A' : 'var(--rose-deep)';
+  el.textContent   = msg;
   setTimeout(() => { el.style.display = 'none'; }, 6000);
 }
 
 async function changeEmail() {
-  const pwd = document.getElementById('compte-pwd-for-email').value;
+  const pwd      = document.getElementById('compte-pwd-for-email').value;
   const newEmail = document.getElementById('compte-new-email').value.trim();
   if (!pwd || !newEmail) { feedback('email-feedback', 'Remplissez tous les champs.', false); return; }
   const user = window._currentUser;
   if (!user) return;
   try {
     const cred = window._credential.credential(user.email, pwd);
-    await window._reauth(user, cred); await window._updateEmail(user, newEmail);
+    await window._reauth(user, cred);
+    await window._updateEmail(user, newEmail);
     feedback('email-feedback', 'Email mis à jour !', true);
   } catch(e) {
     feedback('email-feedback', e.code === 'auth/wrong-password' ? 'Mot de passe incorrect.' : 'Erreur : ' + e.message, false);
@@ -1313,14 +1324,19 @@ async function changePassword() {
   if (!user) return;
   try {
     const cred = window._credential.credential(user.email, current);
-    await window._reauth(user, cred); await window._updatePwd(user, newPwd);
+    await window._reauth(user, cred);
+    await window._updatePwd(user, newPwd);
     feedback('pwd-feedback', 'Mot de passe mis à jour !', true);
-    ['compte-pwd-current','compte-pwd-new','compte-pwd-confirm'].forEach(id => { document.getElementById(id).value = ''; });
+    ['compte-pwd-current','compte-pwd-new','compte-pwd-confirm'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
   } catch(e) {
     feedback('pwd-feedback', e.code === 'auth/wrong-password' ? 'Mot de passe actuel incorrect.' : 'Erreur : ' + e.message, false);
   }
 }
-window.changeEmail = changeEmail; window.changePassword = changePassword;
+window.changeEmail    = changeEmail;
+window.changePassword = changePassword;
+
 </script>
 </body>
 </html>
