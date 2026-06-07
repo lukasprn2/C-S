@@ -1615,12 +1615,8 @@ async function updateRes(id, status, reservationDataEncoded) {
 
     await loadAdminData();
     await loadReservedDates();
-
-    // FIX 2 : rafraîchir l'agenda si l'onglet est actif
-    const agendaPanel = document.getElementById('panel-agenda');
-    if (agendaPanel && agendaPanel.classList.contains('active')) {
-      renderAgenda();
-    }
+ // Toujours rafraîchir l'agenda après une confirmation
+    renderAgenda();
 
   } catch(e) {
     console.error('updateRes error:', e);
