@@ -424,8 +424,8 @@
         <div class="stat"><div class="stat-num">6 ans</div><div class="stat-label">D'expérience</div></div>
       </div>
     </div>
-  <div class="hero-visual">
-  <img src="logo-C&S.png" alt="Câlins & Sourires" style="width:100%; max-width:380px; display:block;">
+ <div class="hero-visual">
+  <img src="logo-C&S.png" alt="Câlins & Sourires" style="width:100%; max-width:380px; display:block; cursor:pointer;" id="logo-trigger" onclick="handleLogoClick()">
 </div>
 </section>
 
@@ -763,7 +763,7 @@
   </div>
 </footer>
 
-<button class="admin-trigger" onclick="openAdmin()">⚙️ Admin</button>
+<button class="admin-trigger" onclick="openAdmin()" style="display:none;"></button>
 
 <!-- ADMIN MODAL -->
 <div class="admin-overlay" id="adminOverlay">
@@ -2182,6 +2182,23 @@ renderCalendar();
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeAdmin(); });
 document.getElementById('adminOverlay').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeAdmin();
-});</script>
+});
+
+let _logoClickCount = 0;
+let _logoClickTimer = null;
+
+function handleLogoClick() {
+  _logoClickCount++;
+  clearTimeout(_logoClickTimer);
+  _logoClickTimer = setTimeout(() => { _logoClickCount = 0; }, 600);
+  if (_logoClickCount >= 3) {
+    _logoClickCount = 0;
+    window.open('admin.html', '_blank');
+  }
+}
+window.handleLogoClick = handleLogoClick;
+
+
+</script>
 </body>
 </html>
