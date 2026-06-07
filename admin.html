@@ -228,6 +228,36 @@
     .toast.success { border-left: 4px solid var(--sage); }
     .toast.error   { border-left: 4px solid var(--rose-deep); }
 
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(45,31,31,0.45); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; z-index: 9000;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-card {
+      background: var(--white); border-radius: 24px; padding: 2rem 2rem 1.5rem;
+      width: 100%; max-width: 520px; box-shadow: var(--shadow);
+      transform: translateY(20px) scale(0.97); transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-overlay.open .modal-card { transform: translateY(0) scale(1); }
+    .modal-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; }
+    .modal-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--dark); }
+    .modal-close { background: var(--cream); border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
+    .modal-close:hover { background: var(--rose-light); }
+    .modal-section { margin-bottom: 1.2rem; }
+    .modal-section-title { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 0.6rem; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .modal-field { background: var(--cream); border-radius: 10px; padding: 10px 14px; }
+    .modal-field-label { font-size: 0.72rem; color: var(--text-light); margin-bottom: 2px; }
+    .modal-field-value { font-size: 0.9rem; font-weight: 600; color: var(--dark); word-break: break-word; }
+    .modal-field.full { grid-column: 1 / -1; }
+    .modal-field.message-field { grid-column: 1 / -1; font-style: italic; }
+    .modal-field.message-field .modal-field-value { color: var(--text-mid); font-weight: 400; }
+    .modal-status-bar { display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .modal-status-bar .res-btn { flex: 1; text-align: center; justify-content: center; }
+
     @media (max-width: 900px) {
       .sidebar { width: 200px; }
       .stats-grid, .ca-summary { grid-template-columns: 1fr 1fr; }
@@ -243,6 +273,47 @@
 <body>
 
 <div class="toast" id="toast"></div>
+
+<!-- ══════════════ MODAL RÉSERVATION ══════════════ -->
+<div class="modal-overlay" id="resModal" onclick="closeResModal(event)">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title" id="modalName">—</div>
+      <button class="modal-close" onclick="closeResModal()">✕</button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">📅 Rendez-vous</div>
+      <div class="modal-grid">
+        <div class="modal-field"><div class="modal-field-label">Date</div><div class="modal-field-value" id="m-date">—</div></div>
+        <div class="modal-field"><div class="modal-field-label">Créneau</div><div class="modal-field-value" id="m-slot">—</div></div>
+        <div class="modal-field"><div class="modal-field-label">Type de garde</div><div class="modal-field-value" id="m-type">—</div></div>
+        <div class="modal-field"><div class="modal-field-label">Nombre d'enfants</div><div class="modal-field-value" id="m-enfants">—</div></div>
+        <div class="modal-field full"><div class="modal-field-label">Statut</div><div class="modal-field-value" id="m-status">—</div></div>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">👤 Client</div>
+      <div class="modal-grid">
+        <div class="modal-field"><div class="modal-field-label">Prénom</div><div class="modal-field-value" id="m-prenom">—</div></div>
+        <div class="modal-field"><div class="modal-field-label">Nom</div><div class="modal-field-value" id="m-nom">—</div></div>
+        <div class="modal-field"><div class="modal-field-label">Email</div><div class="modal-field-value" id="m-email">—</div></div>
+        <div class="modal-field"><div class="modal-field-label">Téléphone</div><div class="modal-field-value" id="m-tel">—</div></div>
+        <div class="modal-field full"><div class="modal-field-label">Adresse</div><div class="modal-field-value" id="m-adresse">—</div></div>
+      </div>
+    </div>
+
+    <div class="modal-section" id="m-message-section" style="display:none;">
+      <div class="modal-section-title">💬 Message</div>
+      <div class="modal-grid">
+        <div class="modal-field message-field"><div class="modal-field-value" id="m-message">—</div></div>
+      </div>
+    </div>
+
+    <div class="modal-status-bar" id="m-actions"></div>
+  </div>
+</div>
 
 <!-- ══════════════ LOGIN ══════════════ -->
 <div id="loginPage">
@@ -699,6 +770,7 @@ function renderReservationsList(filter) {
         <div class="res-name">${r.prenom} ${r.nom}</div>
         <div class="res-detail">📅 ${r.date} · ⏰ ${r.slot} · ${r.typeGarde} · ${r.nbEnfants} enfant(s)</div>
         <div class="res-detail">📧 ${r.email} · 📞 ${r.tel || '—'}</div>
+        ${r.adresse ? `<div class="res-detail">📍 ${r.adresse}</div>` : ''}
         ${r.message ? `<div class="res-detail" style="font-style:italic;color:var(--text-light);">"${r.message}"</div>` : ''}
       </div>
       <span class="res-badge ${r.status}">
@@ -845,8 +917,8 @@ function renderAgenda() {
             const endH = parseInt(cren.end.split(':')[0]);
             const dureeH = endH > startH ? endH - startH : (24 - startH + endH);
             cell += `<div class="agenda-event confirmed"
-              style="top:${startM > 0 ? (startM/60)*40 : 0}px; height:${Math.max(dureeH * 40, 20)}px;"
-              title="${r.prenom} ${r.nom} · ${r.typeGarde}">
+              style="top:${startM > 0 ? (startM/60)*40 : 0}px; height:${Math.max(dureeH * 40, 20)}px; cursor:pointer;"
+              onclick="openResModal('${r.id}')">
               ${r.prenom} ${r.nom.charAt(0)}.<br>
               <small>${cren.start}–${cren.end}</small>
             </div>`;
@@ -858,7 +930,8 @@ function renderAgenda() {
             const startH2 = parseInt(parts[0]);
             if (startH2 === h) {
               cell += `<div class="agenda-event confirmed"
-                title="${r.prenom} ${r.nom} · ${r.typeGarde}">
+                style="cursor:pointer;"
+                onclick="openResModal('${r.id}')">
                 ${r.prenom} ${r.nom.charAt(0)}.<br>
                 <small>${r.slot}</small>
               </div>`;
@@ -873,6 +946,52 @@ function renderAgenda() {
   html += '</div>';
   document.getElementById('agendaContainer').innerHTML = html;
 }
+
+// ── MODAL RÉSERVATION ──
+function openResModal(id) {
+  const r = _allRes.find(x => x.id === id);
+  if (!r) return;
+
+  document.getElementById('modalName').textContent = `${r.prenom} ${r.nom}`;
+  document.getElementById('m-date').textContent    = r.date    || '—';
+  document.getElementById('m-slot').textContent    = r.slot    || '—';
+  document.getElementById('m-type').textContent    = r.typeGarde || '—';
+  document.getElementById('m-enfants').textContent = r.nbEnfants != null ? r.nbEnfants + (r.nbEnfants > 1 ? ' enfants' : ' enfant') : '—';
+
+  const statusMap = { pending: '⏳ En attente', confirmed: '✅ Confirmée', cancelled: '❌ Annulée' };
+  document.getElementById('m-status').textContent  = statusMap[r.status] || r.status || '—';
+
+  document.getElementById('m-prenom').textContent  = r.prenom  || '—';
+  document.getElementById('m-nom').textContent     = r.nom     || '—';
+  document.getElementById('m-email').textContent   = r.email   || '—';
+  document.getElementById('m-tel').textContent     = r.tel     || '—';
+  document.getElementById('m-adresse').textContent = r.adresse || '—';
+
+  const msgSection = document.getElementById('m-message-section');
+  if (r.message) {
+    document.getElementById('m-message').textContent = r.message;
+    msgSection.style.display = 'block';
+  } else {
+    msgSection.style.display = 'none';
+  }
+
+  // Boutons d'action
+  const enc = encodeURIComponent(JSON.stringify(r));
+  let btns = '';
+  if (r.status === 'pending')   btns += `<button class="res-btn confirm" onclick="updateRes('${r.id}','confirmed','${enc}');closeResModal()">✅ Confirmer</button>`;
+  if (r.status !== 'cancelled') btns += `<button class="res-btn cancel"  onclick="updateRes('${r.id}','cancelled',null);closeResModal()">✕ Annuler</button>`;
+  btns += `<button class="res-btn delete" onclick="deleteRes('${r.id}');closeResModal()">🗑️ Supprimer</button>`;
+  document.getElementById('m-actions').innerHTML = btns;
+
+  document.getElementById('resModal').classList.add('open');
+}
+
+function closeResModal(e) {
+  if (e && e.target !== document.getElementById('resModal')) return;
+  document.getElementById('resModal').classList.remove('open');
+}
+window.openResModal  = openResModal;
+window.closeResModal = closeResModal;
 
 // ── TARIFS ──
 const TARIFS_CONFIG = [
